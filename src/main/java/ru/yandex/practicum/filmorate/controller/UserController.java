@@ -26,6 +26,7 @@ public class UserController {
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
 
+        validateLogin(user);
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
@@ -47,6 +48,8 @@ public class UserController {
             throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
         }
 
+        validateLogin(newUser);
+
         User oldUser = users.get(newUser.getId());
 
         oldUser.setEmail(newUser.getEmail());
@@ -61,5 +64,12 @@ public class UserController {
         long currentMaxId = users.keySet().stream().mapToLong(id -> id).max().orElse(0);
 
         return ++currentMaxId;
+    }
+    private void validateLogin(User user) {
+        if (user.getLogin().contains(" ")) {
+            throw new ConditionsNotMetException(
+                    "Логин не должен содержать пробелы"
+            );
+        }
     }
 }

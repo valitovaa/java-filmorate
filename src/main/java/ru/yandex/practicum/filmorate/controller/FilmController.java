@@ -28,6 +28,7 @@ public class FilmController {
     public Film postFilm(@Valid @RequestBody Film film) {
 
         validateReleaseDate(film);
+        validateDuration(film);
 
         film.setId(getNextId());
 
@@ -70,6 +71,13 @@ public class FilmController {
 
         if (film.getReleaseDate().isBefore(minReleaseDate)) {
             throw new ConditionsNotMetException("Дата релиза не может быть раньше 28 декабря 1895 года");
+        }
+    }
+    private void validateDuration(Film film) {
+        if (!film.getDuration().isPositive()) {
+            throw new ConditionsNotMetException(
+                    "Продолжительность должна быть положительной"
+            );
         }
     }
 }
