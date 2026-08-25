@@ -73,6 +73,7 @@ public class FilmController {
             throw new ConditionsNotMetException("Дата релиза не может быть раньше 28 декабря 1895 года");
         }
     }
+
     private void validateDuration(Film film) {
         if (!film.getDuration().isPositive()) {
             throw new ConditionsNotMetException(

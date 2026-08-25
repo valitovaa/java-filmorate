@@ -65,6 +65,7 @@ public class UserController {
 
         return ++currentMaxId;
     }
+
     private void validateLogin(User user) {
         if (user.getLogin().contains(" ")) {
             throw new ConditionsNotMetException(
