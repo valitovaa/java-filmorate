@@ -23,6 +23,7 @@ class UserValidationTest {
 
     private User createValidUser() {
         User user = new User();
+        user.setId(1L);
         user.setEmail("test@mail.ru");
         user.setLogin("testLogin");
         user.setName("Test User");
