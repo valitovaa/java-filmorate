@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -27,7 +28,8 @@ public class UserController {
     public User addUser(@Valid @RequestBody User user) {
 
         validateLogin(user);
-        if (user.getName() == null || user.getName().isBlank()) {
+
+        if (!StringUtils.hasText(user.getName())) {
             user.setName(user.getLogin());
         }
 
@@ -40,16 +42,9 @@ public class UserController {
     @PutMapping
     public User update(@Valid @RequestBody User newUser) {
 
-        if (newUser.getId() == null) {
-            throw new ConditionsNotMetException("Id должен быть указан");
-        }
 
         if (!users.containsKey(newUser.getId())) {
             throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
-        }
-
-        if (newUser.getName() == null || newUser.getName().isBlank()) {
-            newUser.setName(newUser.getLogin());
         }
 
         validateLogin(newUser);
@@ -72,9 +67,8 @@ public class UserController {
 
     private void validateLogin(User user) {
         if (user.getLogin().contains(" ")) {
-            throw new ConditionsNotMetException(
-                    "Логин не должен содержать пробелы"
-            );
+            throw new ConditionsNotMetException("Логин не должен содержать пробелы");
         }
     }
 }
+
