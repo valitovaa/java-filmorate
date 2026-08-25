@@ -24,5 +24,5 @@ public class Film {
     LocalDate releaseDate;
 
     @NotNull(message = "Продолжительность должна быть указана")
-    Duration duration;
+    int duration;
 }

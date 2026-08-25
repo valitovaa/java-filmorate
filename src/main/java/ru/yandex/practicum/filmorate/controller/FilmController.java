@@ -49,6 +49,7 @@ public class FilmController {
         }
 
         validateReleaseDate(newFilm);
+        validateDuration(newFilm);
 
         Film oldFilm = films.get(newFilm.getId());
 
@@ -75,7 +76,7 @@ public class FilmController {
     }
 
     private void validateDuration(Film film) {
-        if (!film.getDuration().isPositive()) {
+        if (film.getDuration() <= 0) {
             throw new ConditionsNotMetException(
                     "Продолжительность должна быть положительной"
             );

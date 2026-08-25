@@ -48,6 +48,10 @@ public class UserController {
             throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
         }
 
+        if (newUser.getName() == null || newUser.getName().isBlank()) {
+            newUser.setName(newUser.getLogin());
+        }
+
         validateLogin(newUser);
 
         User oldUser = users.get(newUser.getId());

@@ -11,16 +11,24 @@ public class ErrorHandler {
 
     @ExceptionHandler(ConditionsNotMetException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public void handleConditionsNotMet() {
+    public ErrorResponse handleConditionsNotMet(ConditionsNotMetException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handleNotFound() {
+    public ErrorResponse handleNotFound(NotFoundException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public void handleValidationException() {
+    public ErrorResponse handleValidationException(MethodArgumentNotValidException e) {
+        String message = e.getBindingResult()
+                .getFieldErrors()
+                .get(0)
+                .getDefaultMessage();
+
+        return new ErrorResponse(message);
     }
 }
