@@ -6,7 +6,6 @@ import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -27,7 +26,7 @@ class FilmValidationTest {
         film.setName("Test Film");
         film.setDescription("Test description");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(Duration.ofHours(2));
+        film.setDuration(120);
         return film;
     }
 
@@ -84,16 +83,6 @@ class FilmValidationTest {
     void shouldRejectNullReleaseDate() {
         Film film = createValidFilm();
         film.setReleaseDate(null);
-
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-
-        assertEquals(1, violations.size());
-    }
-
-    @Test
-    void shouldRejectNullDuration() {
-        Film film = createValidFilm();
-        film.setDuration(null);
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
