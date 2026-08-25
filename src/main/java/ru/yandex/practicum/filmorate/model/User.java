@@ -17,6 +17,7 @@ public class User {
     @NotBlank(message = "Логин не может быть пустым")
     String login;
 
+    @NotBlank(message = "Email не может быть пустым")
     @Email(message = "Некорректный email")
     String email;
 
