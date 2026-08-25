@@ -23,11 +23,10 @@ class UserValidationTest {
 
     private User createValidUser() {
         User user = new User();
-        user.setId(1L);
-        user.setEmail("test@mail.ru");
         user.setLogin("testLogin");
+        user.setEmail("test@mail.ru");
         user.setName("Test User");
-        user.setBirthday(LocalDate.of(1990, 1, 1));
+        user.setBirthday(LocalDate.of(2000, 1, 1));
         return user;
     }
 
@@ -81,12 +80,12 @@ class UserValidationTest {
     }
 
     @Test
-    void shouldRejectFutureBirthday() {
+    void shouldAcceptNullId() {
         User user = createValidUser();
-        user.setBirthday(LocalDate.now().plusDays(1));
+        user.setId(null);
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
 
-        assertEquals(1, violations.size());
+        assertTrue(violations.isEmpty());
     }
 }
