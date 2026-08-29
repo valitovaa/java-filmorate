@@ -86,11 +86,15 @@ public class UserService {
         findUserOrThrow(otherUserId);
 
         Set<Long> userFriends = friends.getOrDefault(userId, Collections.emptySet());
-
         Set<Long> otherUserFriends = friends.getOrDefault(otherUserId, Collections.emptySet());
 
-        return userFriends.stream().filter(otherUserFriends::contains).map(this::findUserOrThrow).toList();
+        return userFriends.stream()
+                .filter(otherUserFriends::contains)
+                .map(userStorage::findUserById)
+                .flatMap(Optional::stream)
+                .toList();
     }
+
 
     private User findUserOrThrow(Long id) {
         return userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));

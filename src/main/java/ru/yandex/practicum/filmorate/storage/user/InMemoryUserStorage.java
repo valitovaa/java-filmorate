@@ -16,6 +16,7 @@ import java.util.Optional;
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
+    private long currentId = 0; // Безопасный счетчик вместо стрима
 
     @Override
     public Collection<User> findAll() {
@@ -50,14 +51,14 @@ public class InMemoryUserStorage implements UserStorage {
         validateLogin(newUser);
         validateBirthday(newUser);
 
-        User oldUser = users.get(newUser.getId());
+        if (!StringUtils.hasText(newUser.getName())) {
+            newUser.setName(newUser.getLogin());
+        }
 
-        oldUser.setEmail(newUser.getEmail());
-        oldUser.setLogin(newUser.getLogin());
-        oldUser.setName(newUser.getName());
-        oldUser.setBirthday(newUser.getBirthday());
+        // Обновляем пользователя в памяти целиком
+        users.put(newUser.getId(), newUser);
 
-        return oldUser;
+        return newUser;
     }
 
     @Override
@@ -65,8 +66,9 @@ public class InMemoryUserStorage implements UserStorage {
         return Optional.ofNullable(users.get(id));
     }
 
+    // Быстрая генерация ID, которая не вешает терминал при тестах Newman
     private long getNextId() {
-        return users.keySet().stream().mapToLong(id -> id).max().orElse(0) + 1;
+        return ++currentId;
     }
 
     private void validateLogin(User user) {
