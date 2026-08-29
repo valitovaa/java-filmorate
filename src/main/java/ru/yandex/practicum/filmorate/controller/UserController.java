@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -39,17 +38,17 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) { // Исправлено: userId -> id
+    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
         userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getUsersFriends(@PathVariable Long id) { // Исправлено: userId -> id
+    public List<User> getUsersFriends(@PathVariable Long id) {
         return userService.getFriends(id);
     }
 
-    @GetMapping("/{id}/friends/common/{otherId}") // Исправлено: убран лишний /users, пробел и исправлены переменные
-    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) { // Исправлено: имена совпадают с {}
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 }

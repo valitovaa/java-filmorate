@@ -52,7 +52,6 @@ public class InMemoryUserStorage implements UserStorage {
             newUser.setName(newUser.getLogin());
         }
 
-        // Обновляем пользователя в памяти целиком
         users.put(newUser.getId(), newUser);
 
         return newUser;
@@ -63,7 +62,6 @@ public class InMemoryUserStorage implements UserStorage {
         return Optional.ofNullable(users.get(id));
     }
 
-    // Быстрая генерация ID, которая не вешает терминал при тестах Newman
     private long getNextId() {
         return ++currentId;
     }

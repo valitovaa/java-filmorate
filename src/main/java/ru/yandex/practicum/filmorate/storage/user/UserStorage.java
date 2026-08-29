@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserStorage {
+
     List<User> findAll();
 
     User addUser(User user);
