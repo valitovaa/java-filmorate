@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -18,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public Collection<User> findAll() {
+    public List<User> findAll() {
         return userService.findAll();
     }
 
@@ -43,12 +44,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<User> getUsersFriends(@PathVariable Long id) { // Исправлено: userId -> id
+    public List<User> getUsersFriends(@PathVariable Long id) { // Исправлено: userId -> id
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}") // Исправлено: убран лишний /users, пробел и исправлены переменные
-    public Collection<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) { // Исправлено: имена совпадают с {}
+    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) { // Исправлено: имена совпадают с {}
         return userService.getCommonFriends(id, otherId);
     }
 }

@@ -17,7 +17,7 @@ public class UserService {
     private final Map<Long, Set<Long>> friends = new HashMap<>();
 
 
-    public Collection<User> findAll() {
+    public List<User> findAll() {
         return userStorage.findAll();
     }
 
@@ -59,7 +59,7 @@ public class UserService {
         }
     }
 
-    public Collection<User> getFriends(Long userId) {
+    public List<User> getFriends(Long userId) {
         findUserOrThrow(userId);
 
         Set<Long> friendIds = friends.getOrDefault(userId, Collections.emptySet());
@@ -72,7 +72,7 @@ public class UserService {
 
 
 
-    public Collection<User> getCommonFriends(Long userId, Long otherUserId) {
+    public List<User> getCommonFriends(Long userId, Long otherUserId) {
         findUserOrThrow(userId);
         findUserOrThrow(otherUserId);
 
