@@ -6,14 +6,15 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
+    private final Map<Long, Set<Long>> friends = new HashMap<>();
+
     private final Map<Long, User> users = new HashMap<>();
-    private long currentId = 0; // Безопасный счетчик вместо стрима
+    private long currentId = 0;
 
     @Override
     public List<User> findAll() {
@@ -22,13 +23,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
-        validateLogin(user);
-        validateBirthday(user);
-
-        if (!StringUtils.hasText(user.getName())) {
-            user.setName(user.getLogin());
-        }
-
         user.setId(getNextId());
         users.put(user.getId(), user);
 
@@ -45,9 +39,6 @@ public class InMemoryUserStorage implements UserStorage {
             throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
         }
 
-        validateLogin(newUser);
-        validateBirthday(newUser);
-
         if (!StringUtils.hasText(newUser.getName())) {
             newUser.setName(newUser.getLogin());
         }
@@ -62,19 +53,46 @@ public class InMemoryUserStorage implements UserStorage {
         return Optional.ofNullable(users.get(id));
     }
 
+    @Override
+    public void addFriend(Long userId, Long friendId) {
+
+        friends.computeIfAbsent(userId, id -> new HashSet<>()).add(friendId);
+
+        friends.computeIfAbsent(friendId, id -> new HashSet<>()).add(userId);
+
+    }
+
+    @Override
+    public void removeFriend(Long userId, Long friendId) {
+
+        Set<Long> userFriends = friends.get(userId);
+
+        if (userFriends != null) {
+            userFriends.remove(friendId);
+        }
+
+        Set<Long> friendFriends = friends.get(friendId);
+
+        if (friendFriends != null) {
+            friendFriends.remove(userId);
+        }
+    }
+
+    @Override
+    public List<User> getFriends(Long userId) {
+        return friends.getOrDefault(userId, Collections.emptySet()).stream().map(users::get).toList();
+    }
+
+    @Override
+    public List<User> getCommonFriends(Long userId, Long otherUserId) {
+        Set<Long> userFriends = friends.getOrDefault(userId, Collections.emptySet());
+        Set<Long> otherUserFriends = friends.getOrDefault(otherUserId, Collections.emptySet());
+
+        return userFriends.stream().filter(otherUserFriends::contains).map(users::get).toList();
+    }
+
     private long getNextId() {
         return ++currentId;
     }
 
-    private void validateLogin(User user) {
-        if (!StringUtils.hasText(user.getLogin())) {
-            throw new ConditionsNotMetException("Логин не может быть пустым");
-        }
-    }
-
-    private void validateBirthday(User user) {
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
-        }
-    }
 }

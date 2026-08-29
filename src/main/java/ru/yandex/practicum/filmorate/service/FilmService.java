@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -15,13 +17,12 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
-    private final Map<Long, Set<Long>> likes = new HashMap<>();
 
     public void like(Long filmId, Long userId) {
         findFilmOrThrow(filmId);
         findUserOrThrow(userId);
 
-        likes.computeIfAbsent(filmId, id -> new HashSet<>()).add(userId);
+        filmStorage.like(filmId, userId);
 
     }
 
@@ -29,15 +30,11 @@ public class FilmService {
         findFilmOrThrow(filmId);
         findUserOrThrow(userId);
 
-        Set<Long> filmLikes = likes.get(filmId);
-
-        if (filmLikes != null) {
-            filmLikes.remove(userId);
-        }
+        filmStorage.removeLike(filmId, userId);
     }
 
     public Collection<Film> getPopularFilms(int count) {
-        return filmStorage.findAll().stream().sorted(Comparator.comparingInt((Film film) -> likes.getOrDefault(film.getId(), Set.of()).size()).reversed()).limit(count).toList();
+        return filmStorage.getPopularFilms(count);
     }
 
 
@@ -47,11 +44,15 @@ public class FilmService {
 
 
     public Film postFilm(Film film) {
+        validateReleaseDate(film);
+        validateDuration(film);
         return filmStorage.postFilm(film);
     }
 
 
     public Film update(Film film) {
+        validateReleaseDate(film);
+        validateDuration(film);
         return filmStorage.update(film);
     }
 
@@ -61,6 +62,20 @@ public class FilmService {
 
     private void findFilmOrThrow(Long id) {
         filmStorage.findFilmById(id).orElseThrow(() -> new NotFoundException("Фильм с id = " + id + " не найден"));
+    }
+
+    private void validateReleaseDate(Film film) {
+        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
+
+        if (film.getReleaseDate().isBefore(minReleaseDate)) {
+            throw new ConditionsNotMetException("Дата релиза не может быть раньше 28 декабря 1895 года");
+        }
+    }
+
+    private void validateDuration(Film film) {
+        if (film.getDuration() <= 0) {
+            throw new ConditionsNotMetException("Продолжительность должна быть положительной");
+        }
     }
 }
 
