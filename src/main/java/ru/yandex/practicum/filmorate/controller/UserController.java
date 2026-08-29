@@ -38,19 +38,17 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriend(@PathVariable Long userId, @PathVariable Long friendId) {
-        userService.removeFriend(userId, friendId);
+    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) { // Исправлено: userId -> id
+        userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<User> getUsersFriends(@PathVariable Long userId) {
-        return userService.getFriends(userId);
+    public Collection<User> getUsersFriends(@PathVariable Long id) { // Исправлено: userId -> id
+        return userService.getFriends(id);
     }
 
-    @GetMapping("/users/{id}/friends/common/{otherId} ")
-    public Collection<User> getCommonFriends(@PathVariable Long userId, @PathVariable Long friendId) {
-        return userService.getCommonFriends(userId, friendId);
+    @GetMapping("/{id}/friends/common/{otherId}") // Исправлено: убран лишний /users, пробел и исправлены переменные
+    public Collection<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) { // Исправлено: имена совпадают с {}
+        return userService.getCommonFriends(id, otherId);
     }
-
-
 }
