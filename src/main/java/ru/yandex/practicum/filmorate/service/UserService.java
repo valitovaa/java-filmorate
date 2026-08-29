@@ -62,10 +62,24 @@ public class UserService {
     public Collection<User> getFriends(Long userId) {
         findUserOrThrow(userId);
 
-        Set<Long> friendIds = friends.getOrDefault(userId, Collections.emptySet());
+        Set<Long> friendIds = friends.get(userId);
+        if (friendIds == null || friendIds.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-        return friendIds.stream().map(this::findUserOrThrow).toList();
+        List<User> friendsList = new ArrayList<>();
+        for (Long friendId : friendIds) {
+            Optional<User> friendOpt = userStorage.findUserById(friendId);
+            if (friendOpt.isPresent()) {
+                friendsList.add(friendOpt.get());
+            } else {
+                throw new NotFoundException("Друг с id = " + friendId + " указан в связях, но отсутствует в хранилище!");
+            }
+        }
+
+        return friendsList;
     }
+
 
     public Collection<User> getCommonFriends(Long userId, Long otherUserId) {
         findUserOrThrow(userId);
