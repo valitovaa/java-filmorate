@@ -17,7 +17,7 @@ public class FilmService {
 
     private final Map<Long, Set<Long>> likes = new HashMap<>();
 
-    public void like(Long userId, Long filmId) {
+    public void like(Long filmId, Long userId) {
         findFilmOrThrow(filmId);
         findUserOrThrow(userId);
 
@@ -25,7 +25,7 @@ public class FilmService {
 
     }
 
-    public void removeLike(Long userId, Long filmId) {
+    public void removeLike(Long filmId, Long userId) {
         findFilmOrThrow(filmId);
         findUserOrThrow(userId);
 
