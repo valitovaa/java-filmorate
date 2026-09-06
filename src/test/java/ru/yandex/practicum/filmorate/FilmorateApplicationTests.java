@@ -30,7 +30,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         FriendshipRowMapper.class
 })
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class FilmoRateApplicationTests {
+class FilmorateApplicationTests {
 
     private final UserDbStorage userStorage;
     private final JdbcTemplate jdbc;
