@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.user.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -16,6 +16,7 @@ import java.util.*;
 public class UserService {
 
     private final UserStorage userStorage;
+
 
     public List<User> findAll() {
         return userStorage.findAll();
@@ -68,8 +69,8 @@ public class UserService {
     }
 
 
-    private User findUserOrThrow(Long id) {
-        return userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
+    private void findUserOrThrow(Long id) {
+        userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
     }
 
     private void validateLogin(User user) {

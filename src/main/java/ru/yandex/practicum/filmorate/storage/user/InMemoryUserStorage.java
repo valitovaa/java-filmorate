@@ -4,14 +4,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.user.Friendship;
+import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
-    private final Map<Long, Set<Long>> friends = new HashMap<>();
+    private final List<Friendship> friendships = new ArrayList<>();
 
     private final Map<Long, User> users = new HashMap<>();
     private long currentId = 0;
@@ -36,7 +38,9 @@ public class InMemoryUserStorage implements UserStorage {
         }
 
         if (!users.containsKey(newUser.getId())) {
-            throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
+            throw new NotFoundException(
+                    "Пользователь с id = " + newUser.getId() + " не найден"
+            );
         }
 
         if (!StringUtils.hasText(newUser.getName())) {
@@ -55,44 +59,39 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-
-        friends.computeIfAbsent(userId, id -> new HashSet<>()).add(friendId);
-
-        friends.computeIfAbsent(friendId, id -> new HashSet<>()).add(userId);
-
+        friendships.add(new Friendship(userId, friendId));
+        friendships.add(new Friendship(friendId, userId));
     }
 
     @Override
     public void removeFriend(Long userId, Long friendId) {
-
-        Set<Long> userFriends = friends.get(userId);
-
-        if (userFriends != null) {
-            userFriends.remove(friendId);
-        }
-
-        Set<Long> friendFriends = friends.get(friendId);
-
-        if (friendFriends != null) {
-            friendFriends.remove(userId);
-        }
+        friendships.removeIf(f ->
+                (f.getUserId().equals(userId) && f.getFriendId().equals(friendId))
+                        || (f.getUserId().equals(friendId) && f.getFriendId().equals(userId))
+        );
     }
 
     @Override
     public List<User> getFriends(Long userId) {
-        return friends.getOrDefault(userId, Collections.emptySet()).stream().map(users::get).toList();
+        return friendships.stream()
+                .filter(f -> f.getUserId().equals(userId))
+                .map(f -> users.get(f.getFriendId()))
+                .toList();
     }
 
     @Override
     public List<User> getCommonFriends(Long userId, Long otherUserId) {
-        Set<Long> userFriends = friends.getOrDefault(userId, Collections.emptySet());
-        Set<Long> otherUserFriends = friends.getOrDefault(otherUserId, Collections.emptySet());
 
-        return userFriends.stream().filter(otherUserFriends::contains).map(users::get).toList();
+        Set<Long> userFriendIds = getFriends(userId).stream()
+                .map(User::getId)
+                .collect(Collectors.toSet());
+
+        return getFriends(otherUserId).stream()
+                .filter(user -> userFriendIds.contains(user.getId()))
+                .toList();
     }
 
     private long getNextId() {
         return ++currentId;
     }
-
 }
