@@ -30,8 +30,6 @@ public class MpaService {
             }
         }
 
-        throw new NotFoundException(
-                "Рейтинг с id = " + id + " не найден"
-        );
+        throw new NotFoundException("Рейтинг с id = " + id + " не найден");
     }
 }
