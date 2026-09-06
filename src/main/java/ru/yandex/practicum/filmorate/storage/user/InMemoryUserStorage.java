@@ -5,7 +5,6 @@ import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.user.Friendship;
-import ru.yandex.practicum.filmorate.model.user.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.util.*;
@@ -39,7 +38,9 @@ public class InMemoryUserStorage implements UserStorage {
         }
 
         if (!users.containsKey(newUser.getId())) {
-            throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
+            throw new NotFoundException(
+                    "Пользователь с id = " + newUser.getId() + " не найден"
+            );
         }
 
         if (!StringUtils.hasText(newUser.getName())) {
@@ -58,52 +59,23 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-        Friendship friendship = new Friendship(
-                userId,
-                friendId,
-                FriendshipStatus.UNCONFIRMED
-        );
-
+        Friendship friendship = new Friendship(userId, friendId);
         friendships.add(friendship);
-    }
-
-    @Override
-    public void confirmFriend(Long userId, Long friendId) {
-        Friendship friendship = friendships.stream()
-                .filter(f -> f.getUserId().equals(friendId))
-                .filter(f -> f.getFriendId().equals(userId))
-                .findFirst()
-                .orElseThrow(() ->
-                        new NotFoundException("Запрос на добавление в друзья не найден")
-                );
-
-        friendship.setStatus(FriendshipStatus.CONFIRMED);
     }
 
     @Override
     public void removeFriend(Long userId, Long friendId) {
         friendships.removeIf(f ->
-                (f.getUserId().equals(userId) && f.getFriendId().equals(friendId))
-                        ||
-                        (f.getUserId().equals(friendId) && f.getFriendId().equals(userId))
+                f.getUserId().equals(userId)
+                        && f.getFriendId().equals(friendId)
         );
     }
 
     @Override
     public List<User> getFriends(Long userId) {
         return friendships.stream()
-                .filter(f -> f.getStatus() == FriendshipStatus.CONFIRMED)
-                .filter(f ->
-                        f.getUserId().equals(userId)
-                                || f.getFriendId().equals(userId)
-                )
-                .map(f -> {
-                    if (f.getUserId().equals(userId)) {
-                        return users.get(f.getFriendId());
-                    } else {
-                        return users.get(f.getUserId());
-                    }
-                })
+                .filter(f -> f.getUserId().equals(userId))
+                .map(f -> users.get(f.getFriendId()))
                 .toList();
     }
 
@@ -122,5 +94,4 @@ public class InMemoryUserStorage implements UserStorage {
     private long getNextId() {
         return ++currentId;
     }
-
 }

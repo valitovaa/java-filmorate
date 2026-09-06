@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
@@ -16,6 +17,7 @@ import java.util.*;
 public class UserService {
 
     private final UserStorage userStorage;
+
 
     public List<User> findAll() {
         return userStorage.findAll();
@@ -67,16 +69,9 @@ public class UserService {
         return userStorage.getCommonFriends(userId, otherUserId);
     }
 
-    public void confirmFriend(Long userId, Long otherUserId) {
-        findUserOrThrow(userId);
-        findUserOrThrow(otherUserId);
 
-        userStorage.confirmFriend(userId, otherUserId);
-    }
-
-
-    private User findUserOrThrow(Long id) {
-        return userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
+    private void findUserOrThrow(Long id) {
+        userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
     }
 
     private void validateLogin(User user) {
