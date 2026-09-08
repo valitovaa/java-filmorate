@@ -5,8 +5,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.film.Genre;
 import java.util.LinkedHashSet;
-
-import java.util.HashSet;
 import java.util.Set;
 
 @Repository
