@@ -5,31 +5,27 @@ import ru.yandex.practicum.filmorate.dto.MpaResponse;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.MPA;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class MpaService {
 
     public List<MpaResponse> findAll() {
-        return List.of(
-                new MpaResponse(1, "G"),
-                new MpaResponse(2, "PG"),
-                new MpaResponse(3, "PG-13"),
-                new MpaResponse(4, "R"),
-                new MpaResponse(5, "NC-17")
-        );
+        return Arrays.stream(MPA.values())
+                .map(mpa -> new MpaResponse(mpa.getId(), mpa.getName()))
+                .toList();
     }
 
     public MpaResponse findById(int id) {
-        for (MPA mpa : MPA.values()) {
-            if (mpa.getId() == id) {
-                return new MpaResponse(
-                        mpa.getId(),
-                        mpa.getName()
+        return Arrays.stream(MPA.values())
+                .filter(mpa -> mpa.getId() == id)
+                .findFirst()
+                .map(mpa -> new MpaResponse(mpa.getId(), mpa.getName()))
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "MPA с id = " + id + " не найден"
+                        )
                 );
-            }
-        }
-
-        throw new NotFoundException("Рейтинг с id = " + id + " не найден");
     }
 }

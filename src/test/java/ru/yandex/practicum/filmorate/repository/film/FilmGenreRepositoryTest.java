@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.dal.mappers.film.GenreRowMapper;
 import ru.yandex.practicum.filmorate.dal.repositories.film.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.model.film.Genre;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +34,7 @@ class FilmGenreRepositoryTest {
 
         filmGenreRepository.addGenre(1L, 1L);
 
-        List<Genre> genres =
+        Set<Genre> genres =
                 filmGenreRepository.findGenresByFilmId(1L);
 
         assertThat(genres)
@@ -52,7 +52,7 @@ class FilmGenreRepositoryTest {
         filmGenreRepository.addGenre(1L, 2L);
         filmGenreRepository.addGenre(1L, 6L);
 
-        List<Genre> genres =
+        Set<Genre> genres =
                 filmGenreRepository.findGenresByFilmId(1L);
 
         assertThat(genres)
@@ -70,7 +70,7 @@ class FilmGenreRepositoryTest {
 
         filmGenreRepository.deleteGenres(1L);
 
-        List<Genre> genres =
+        Set<Genre> genres =
                 filmGenreRepository.findGenresByFilmId(1L);
 
         assertThat(genres).isEmpty();

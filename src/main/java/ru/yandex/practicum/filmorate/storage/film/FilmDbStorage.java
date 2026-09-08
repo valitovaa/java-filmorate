@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dal.repositories.film.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.dal.repositories.film.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.repositories.film.LikeRepository;
 import ru.yandex.practicum.filmorate.model.film.Film;
@@ -10,21 +10,11 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Component("filmDbStorage")
+@RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
 
     private final FilmRepository filmRepository;
-    private final FilmGenreRepository filmGenreRepository;
     private final LikeRepository likeRepository;
-
-    public FilmDbStorage(
-            FilmRepository filmRepository,
-            FilmGenreRepository filmGenreRepository,
-            LikeRepository likeRepository
-    ) {
-        this.filmRepository = filmRepository;
-        this.filmGenreRepository = filmGenreRepository;
-        this.likeRepository = likeRepository;
-    }
 
     @Override
     public Collection<Film> findAll() {
@@ -48,7 +38,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getPopularFilms(int count) {
-        // здесь добавим специальный запрос в FilmRepository
         return filmRepository.findPopularFilms(count);
     }
 
