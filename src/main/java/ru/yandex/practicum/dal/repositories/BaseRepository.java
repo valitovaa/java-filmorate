@@ -5,7 +5,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import ru.yandex.practicum.filmorate.exception.InternalServerException;
+import ru.yandex.practicum.filmorate.exception.DatabaseException;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -38,7 +38,7 @@ public class BaseRepository<T> {
     protected void update(String query, Object... params) {
         int rowsUpdated = jdbc.update(query, params);
         if (rowsUpdated == 0) {
-            throw new InternalServerException("Не удалось обновить данные");
+            throw new DatabaseException("Не удалось обновить данные");
         }
     }
 
@@ -58,7 +58,7 @@ public class BaseRepository<T> {
         if (id != null) {
             return id;
         } else {
-            throw new InternalServerException("Не удалось сохранить данные");
+            throw new DatabaseException("Не удалось сохранить данные");
         }
     }
 }

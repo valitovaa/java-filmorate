@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.dal.repositories.BaseRepository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.Film;
 
 import java.util.List;
@@ -36,8 +37,8 @@ public class FilmRepository extends BaseRepository<Film> {
     public Film addFilm(Film film) {
         long id = insert(INSERT_QUERY, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa() != null ? film.getMpa().name() : null);
 
-        film.setId(id);
-        return film;
+        return findById(id)
+                .orElseThrow(() -> new NotFoundException("Film was not saved"));
     }
 
     public Film update(Film film) {

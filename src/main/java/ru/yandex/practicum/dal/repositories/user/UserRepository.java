@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.dal.repositories.BaseRepository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.util.List;
@@ -36,8 +37,9 @@ public class UserRepository extends BaseRepository<User> {
 
     public User addUser(User user) {
         long id = insert(INSERT_QUERY, user.getLogin(), user.getEmail(), user.getBirthday(), user.getName());
-        user.setId(id);
-        return user;
+
+        return findById(id)
+                .orElseThrow(() -> new NotFoundException("Film was not saved"));
     }
 
     public User update(User user) {
