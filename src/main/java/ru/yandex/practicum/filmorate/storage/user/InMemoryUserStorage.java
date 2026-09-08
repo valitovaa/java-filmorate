@@ -59,15 +59,15 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-        Friendship friendship = new Friendship(userId, friendId);
-        friendships.add(friendship);
+        friendships.add(new Friendship(userId, friendId));
+        friendships.add(new Friendship(friendId, userId));
     }
 
     @Override
     public void removeFriend(Long userId, Long friendId) {
         friendships.removeIf(f ->
-                f.getUserId().equals(userId)
-                        && f.getFriendId().equals(friendId)
+                (f.getUserId().equals(userId) && f.getFriendId().equals(friendId))
+                        || (f.getUserId().equals(friendId) && f.getFriendId().equals(userId))
         );
     }
 
