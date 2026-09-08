@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 @Getter
 @AllArgsConstructor
@@ -30,6 +31,6 @@ public enum MPA {
             }
         }
 
-        throw new IllegalArgumentException("Неизвестный MPA id: " + id);
+        throw new NotFoundException("MPA с id = " + id + " не найден");
     }
 }

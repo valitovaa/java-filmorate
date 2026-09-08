@@ -36,6 +36,8 @@ public class UserService {
     public User update(User user) {
         validateLogin(user);
         validateBirthday(user);
+        findUserOrThrow(user.getId());
+
         return userStorage.update(user);
     }
 

@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.film.Genre;
+import java.util.LinkedHashSet;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +22,8 @@ public class FilmGenreRepository {
             "SELECT g.* " +
                     "FROM genres g " +
                     "JOIN film_genres fg ON g.id = fg.genre_id " +
-                    "WHERE fg.film_id = ?";
+                    "WHERE fg.film_id = ? " +
+                    "ORDER BY g.id";
 
     private final JdbcTemplate jdbc;
     private final RowMapper<Genre> genreMapper;
@@ -43,7 +45,7 @@ public class FilmGenreRepository {
     }
 
     public Set<Genre> findGenresByFilmId(long filmId) {
-        return new HashSet<>(
+        return new LinkedHashSet<>(
                 jdbc.query(FIND_FILM_GENRES_QUERY, genreMapper, filmId)
         );
     }
