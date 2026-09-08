@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -31,18 +32,24 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
-        Throwable cause = e.getCause();
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException e) {
+
+        Throwable cause = e;
 
         while (cause != null) {
             if (cause instanceof NotFoundException) {
-                return new ErrorResponse(cause.getMessage());
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponse(cause.getMessage()));
             }
+
             cause = cause.getCause();
         }
 
-        return new ErrorResponse("Некорректный формат запроса");
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("Некорректный формат запроса"));
     }
 
     @ExceptionHandler(Exception.class)
