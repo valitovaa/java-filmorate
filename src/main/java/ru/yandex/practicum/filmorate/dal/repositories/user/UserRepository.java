@@ -1,9 +1,9 @@
-package ru.yandex.practicum.dal.repositories.user;
+package ru.yandex.practicum.filmorate.dal.repositories.user;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.dal.repositories.BaseRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.user.User;
 

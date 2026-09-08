@@ -1,4 +1,4 @@
-package ru.yandex.practicum.dal.repositories.film;
+package ru.yandex.practicum.filmorate.dal.repositories.film;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

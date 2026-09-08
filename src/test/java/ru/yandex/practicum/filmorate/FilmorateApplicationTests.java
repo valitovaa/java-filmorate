@@ -8,10 +8,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.yandex.practicum.dal.mappers.user.FriendshipRowMapper;
-import ru.yandex.practicum.dal.mappers.user.UserRowMapper;
-import ru.yandex.practicum.dal.repositories.user.FriendshipRepository;
-import ru.yandex.practicum.dal.repositories.user.UserRepository;
+import ru.yandex.practicum.filmorate.dal.mappers.user.FriendshipRowMapper;
+import ru.yandex.practicum.filmorate.dal.mappers.user.UserRowMapper;
+import ru.yandex.practicum.filmorate.dal.repositories.user.FriendshipRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.user.UserRepository;
 import ru.yandex.practicum.filmorate.model.user.User;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 

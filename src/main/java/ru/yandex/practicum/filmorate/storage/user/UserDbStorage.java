@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.dal.repositories.user.FriendshipRepository;
-import ru.yandex.practicum.dal.repositories.user.UserRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.user.FriendshipRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.user.UserRepository;
 import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.util.List;

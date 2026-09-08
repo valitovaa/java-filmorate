@@ -9,8 +9,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import ru.yandex.practicum.dal.mappers.film.FilmRowMapper;
-import ru.yandex.practicum.dal.repositories.film.FilmRepository;
+import ru.yandex.practicum.filmorate.dal.mappers.film.FilmRowMapper;
+import ru.yandex.practicum.filmorate.dal.repositories.film.FilmRepository;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.MPA;
 

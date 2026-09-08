@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.dal.repositories.film.FilmGenreRepository;
-import ru.yandex.practicum.dal.repositories.film.FilmRepository;
-import ru.yandex.practicum.dal.repositories.film.LikeRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.film.FilmGenreRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.film.FilmRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.film.LikeRepository;
 import ru.yandex.practicum.filmorate.model.film.Film;
 
 import java.util.Collection;

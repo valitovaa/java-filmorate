@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.dto.MpaResponse;
+import ru.yandex.practicum.filmorate.dto.MpaResponse;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.MPA;
 

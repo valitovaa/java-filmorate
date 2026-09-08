@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import ru.yandex.practicum.dal.repositories.film.LikeRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.film.LikeRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

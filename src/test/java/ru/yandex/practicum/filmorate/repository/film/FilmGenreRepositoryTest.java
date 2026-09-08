@@ -8,8 +8,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import ru.yandex.practicum.dal.mappers.film.GenreRowMapper;
-import ru.yandex.practicum.dal.repositories.film.FilmGenreRepository;
+import ru.yandex.practicum.filmorate.dal.mappers.film.GenreRowMapper;
+import ru.yandex.practicum.filmorate.dal.repositories.film.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.model.film.Genre;
 
 import java.util.List;
