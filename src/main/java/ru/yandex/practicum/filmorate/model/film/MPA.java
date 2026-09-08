@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.model.film;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,4 +17,17 @@ public enum MPA {
 
     private final int id;
     private final String name;
+
+    @JsonCreator
+    public static MPA fromJson(JsonNode node) {
+        int id = node.get("id").asInt();
+
+        for (MPA mpa : values()) {
+            if (mpa.id == id) {
+                return mpa;
+            }
+        }
+
+        throw new IllegalArgumentException("Неизвестный MPA id: " + id);
+    }
 }
