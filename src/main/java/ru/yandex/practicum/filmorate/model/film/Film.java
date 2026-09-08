@@ -26,7 +26,7 @@ public class Film {
     @NotNull(message = "Продолжительность должна быть указана")
     int duration;
 
-    Set<Genre> genre;
+    Set<Genre> genres;
 
     MPA mpa;
 }
