@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS film_likes (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-INSERT INTO genres (id, name) VALUES
+MERGE INTO genres (id, name) VALUES
 (1, 'Комедия'),
 (2, 'Драма'),
 (3, 'Мультфильм'),
