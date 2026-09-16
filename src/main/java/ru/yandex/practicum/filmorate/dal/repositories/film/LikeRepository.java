@@ -41,14 +41,14 @@ public class LikeRepository {
 
     //Найти пользователя с максимальным количеством пересечения по лайкам.
     private static final String FIND_MOST_SIMILAR_USER_QUERY = """
-        SELECT fl.user_id, COUNT(*) AS common_likes
+        SELECT fl.user_id
         FROM film_likes fl
         JOIN film_likes target
             ON fl.film_id = target.film_id
         WHERE target.user_id = ?
           AND fl.user_id <> ?
         GROUP BY fl.user_id
-        ORDER BY common_likes DESC
+        ORDER BY COUNT(*) DESC
         LIMIT 1
         """;
 
