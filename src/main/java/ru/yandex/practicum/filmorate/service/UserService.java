@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.user.User;
+import ru.yandex.practicum.filmorate.storage.recommendation.RecommendationStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -15,9 +17,14 @@ import java.util.*;
 public class UserService {
 
     private final UserStorage userStorage;
+    private final RecommendationStorage recommendationStorage;
 
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(
+            @Qualifier("userDbStorage") UserStorage userStorage,
+            @Qualifier("recommendationDbStorage") RecommendationStorage recommendationStorage
+    ) {
         this.userStorage = userStorage;
+        this.recommendationStorage = recommendationStorage;
     }
 
     public List<User> findAll() {
@@ -72,6 +79,13 @@ public class UserService {
         return userStorage.getCommonFriends(userId, otherUserId);
     }
 
+    //рекомендации фильмов
+    public List<Film> getRecommendedFilms(Long userId) {
+        findUserOrThrow(userId);
+
+        return recommendationStorage.getRecommendedFilms(userId);
+    }
+
 
     private void findUserOrThrow(Long id) {
         userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
@@ -88,4 +102,5 @@ public class UserService {
             throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
         }
     }
+
 }
