@@ -20,7 +20,7 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM films WHERE id = ?";
 
     private static final String INSERT_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa) " + "VALUES (?, ?, ?, ?, ?)";
-    private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, " + "duration = ?, mpa = ? WHERE id = ?";
+    private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, " + "duration = ?, mpa = ?, director_id = ? WHERE id = ?";
 
     private static final String FIND_POPULAR_QUERY = "SELECT f.* " + "FROM films f " + "LEFT JOIN film_likes fl ON f.id = fl.film_id " + "GROUP BY f.id " + "ORDER BY COUNT(fl.user_id) DESC " + "LIMIT ?";
 
@@ -57,7 +57,12 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public Film update(Film film) {
-        update(UPDATE_QUERY, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa() != null ? film.getMpa().name() : null, film.getId());
+        Long directorId = null;
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+            directorId = film.getDirectors().get(0).getId();
+        }
+
+        update(UPDATE_QUERY, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa() != null ? film.getMpa().name() : null, directorId, film.getId());
 
         return film;
     }
