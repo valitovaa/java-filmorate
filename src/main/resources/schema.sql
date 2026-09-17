@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS films (
     release_date DATE NOT NULL,
     duration INTEGER NOT NULL,
     mpa VARCHAR,
-    director_id BIGINT NOT NULL,
+    director_id BIGINT,
     FOREIGN KEY (director_id) REFERENCES directors(id)
 );
 
