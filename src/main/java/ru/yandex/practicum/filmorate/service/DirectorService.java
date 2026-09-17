@@ -33,7 +33,7 @@ public class DirectorService {
             throw new ValidationException("Id должен быть указан");
         }
 
-        return directorRepository.getDirectorById(id).orElseThrow(() -> new NotFoundException("Режиссёр не найден")) ;
+        return directorRepository.getDirectorById(id).orElseThrow(() -> new NotFoundException("Режиссёр не найден"));
     }
 
     public Director update(Director newDirector) {
