@@ -16,4 +16,5 @@ public class NewReviewRequest {
 
     @NotNull(message = "Id фильма должен быть указан")
     private Long filmId;
+
 }
