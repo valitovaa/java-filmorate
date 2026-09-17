@@ -25,14 +25,17 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String FIND_POPULAR_QUERY = "SELECT f.* " + "FROM films f " + "LEFT JOIN film_likes fl ON f.id = fl.film_id " + "GROUP BY f.id " + "ORDER BY COUNT(fl.user_id) DESC " + "LIMIT ?";
 
     private static final String FIND_FILMS_BY_LIKES = "SELECT f.*, " +
-            "       d.id AS director_id, " +
             "       d.name AS director_name, " +
             "       (SELECT COUNT(*) FROM film_likes fl WHERE fl.film_id = f.id) AS like_count " +
             "FROM films f " +
             "LEFT JOIN directors d ON f.director_id = d.id " +
             "WHERE f.director_id = ? " +
             "ORDER BY like_count DESC, f.release_date ASC";
-    private static final String FIND_FILMS_BY_YEAR = "SELECT f.* FROM films WHERE f.director_id = ? ORDER BY f.release_date";
+    private static final String FIND_FILMS_BY_YEAR = "SELECT f.*, d.name AS director_name " +
+            "FROM films f " +
+            "LEFT JOIN directors d ON f.director_id = d.id " +
+            "WHERE f.director_id = ? " +
+            "ORDER BY f.release_date ASC";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
