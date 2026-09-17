@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -30,5 +32,5 @@ public class Film {
 
     MPA mpa;
 
-    Director director;
+    List<Director> directors = new ArrayList<>();
 }
