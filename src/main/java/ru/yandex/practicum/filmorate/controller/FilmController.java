@@ -52,7 +52,7 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
-    @GetMapping("/director/{directorId}?/sortBy=[year,likes]")
+    @GetMapping("/director/{directorId}")
     public Collection<Film> getFilmsByDirector(@PathVariable Long directorId, @RequestParam String sortBy) {
         return filmService.getFilmsByDirector(directorId, sortBy);
     }
