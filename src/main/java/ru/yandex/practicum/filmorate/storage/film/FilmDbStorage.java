@@ -50,4 +50,7 @@ public class FilmDbStorage implements FilmStorage {
     public void removeLike(Long filmId, Long userId) {
         likeRepository.deleteLike(filmId, userId);
     }
+
+    @Override
+    public Collection<Film> filmsByDirector(Long directorId, String sortBy) { return filmRepository.findFilmsByDirector(directorId, sortBy); }
 }

@@ -29,4 +29,6 @@ public class Film {
     Set<Genre> genres;
 
     MPA mpa;
+
+    Director director;
 }

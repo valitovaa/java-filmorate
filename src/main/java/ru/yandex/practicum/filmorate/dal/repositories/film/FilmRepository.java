@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.Film;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +23,9 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, " + "duration = ?, mpa = ? WHERE id = ?";
 
     private static final String FIND_POPULAR_QUERY = "SELECT f.* " + "FROM films f " + "LEFT JOIN film_likes fl ON f.id = fl.film_id " + "GROUP BY f.id " + "ORDER BY COUNT(fl.user_id) DESC " + "LIMIT ?";
+
+    private static final String FIND_FILMS_BY_LIKES = "SELECT f.*, COUNT(fl.user_id) AS like_count FROM films LEFT JOIN film_likes fl ON f.id = fl.film_id WHERE f.director_id = ?  GROUP BY f.id ORDER BY like_count DESC, f.release_date ASC";
+    private static final String FIND_FILMS_BY_YEAR = "SELECT f.* FROM films WHERE f.director_id = ? ORDER BY f.release_date";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -49,5 +54,23 @@ public class FilmRepository extends BaseRepository<Film> {
 
     public List<Film> findPopularFilms(int count) {
         return findMany(FIND_POPULAR_QUERY, count);
+    }
+
+    public Collection<Film> findFilmsByDirector(Long directorId, String sortBy) {
+        if (sortBy.equals("likes")) {
+            return findFilmsByLikes(directorId);
+        } else if (sortBy.equals("year")) {
+            return findFilmsByYear(directorId);
+        }
+
+        return Collections.emptyList();
+    }
+
+    private Collection<Film> findFilmsByLikes(Long directorId) {
+        return findMany(FIND_FILMS_BY_LIKES, directorId);
+    }
+
+    private Collection<Film> findFilmsByYear(Long directorId) {
+        return findMany(FIND_FILMS_BY_YEAR, directorId);
     }
 }
