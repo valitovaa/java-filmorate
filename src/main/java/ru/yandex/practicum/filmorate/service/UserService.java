@@ -5,9 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.user.User;
-import ru.yandex.practicum.filmorate.storage.recommendation.RecommendationStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -17,14 +15,11 @@ import java.util.*;
 public class UserService {
 
     private final UserStorage userStorage;
-    private final RecommendationStorage recommendationStorage;
 
-    public UserService(
-            @Qualifier("userDbStorage") UserStorage userStorage,
-            @Qualifier("recommendationDbStorage") RecommendationStorage recommendationStorage
-    ) {
+
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
-        this.recommendationStorage = recommendationStorage;
+
     }
 
     public List<User> findAll() {
@@ -77,13 +72,6 @@ public class UserService {
         findUserOrThrow(otherUserId);
 
         return userStorage.getCommonFriends(userId, otherUserId);
-    }
-
-    //рекомендации фильмов
-    public List<Film> getRecommendedFilms(Long userId) {
-        findUserOrThrow(userId);
-
-        return recommendationStorage.getRecommendedFilms(userId);
     }
 
 

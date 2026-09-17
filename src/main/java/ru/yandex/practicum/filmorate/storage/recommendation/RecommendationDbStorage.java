@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.storage.recommendation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dal.repositories.film.FilmRepository;
-import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.dal.repositories.film.LikeRepository;
+import ru.yandex.practicum.filmorate.model.film.Film;
 
 import java.util.List;
 import java.util.Optional;
