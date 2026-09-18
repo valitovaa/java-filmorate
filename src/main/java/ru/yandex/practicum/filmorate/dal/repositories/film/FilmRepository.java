@@ -102,7 +102,7 @@ public class FilmRepository extends BaseRepository<Film> {
     private Collection<Film> findFilmsByYear(Long directorId) {
         return findMany(FIND_FILMS_BY_YEAR, directorId);
     }
-  
+
     public List<Film> findCommonFilmsByUsers(long userId, long friendId) {
         return findMany(COMMON_FILMS_BY_USERS_QUERY, userId, friendId);
     }
