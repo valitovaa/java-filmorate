@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class ErrorHandler {
@@ -29,6 +30,13 @@ public class ErrorHandler {
         String message = e.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
 
         return new ErrorResponse(message);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleMethodArgumentTypeMismatch(
+            MethodArgumentTypeMismatchException e) {
+        return new ErrorResponse("Некорректный параметр запроса");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
