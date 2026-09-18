@@ -37,6 +37,10 @@ public class ReviewService {
         this.reviewLikeStorage = reviewLikeStorage;
     }
 
+    public enum Operation {
+        ADD_LIKE, ADD_DISLIKE, DELETE_USEFUL
+    }
+
     public Review postReview(NewReviewRequest review) {
         findFilmById(review.getFilmId());
         findUserById(review.getUserId());
@@ -85,18 +89,18 @@ public class ReviewService {
         }
     }
 
-    public Review changeUsefulReview(Long reviewId, Long userId, int indexUseful) {
+    public Review changeUsefulReview(Long reviewId, Long userId, Operation operation) {
         findUserById(userId);
         Review review = findReviewById(reviewId);
         long usefulBeforeChanges = getUseful(reviewId);
-        switch (indexUseful) {
-            case 0:
+        switch (operation) {
+            case ADD_DISLIKE:
                 reviewLikeStorage.addUseful(reviewId, userId, false);
                 break;
-            case 1:
+            case ADD_LIKE:
                 reviewLikeStorage.addUseful(reviewId, userId, true);
                 break;
-            case 2:
+            case DELETE_USEFUL:
                 reviewLikeStorage.deleteUseful(reviewId, userId);
                 break;
         }
