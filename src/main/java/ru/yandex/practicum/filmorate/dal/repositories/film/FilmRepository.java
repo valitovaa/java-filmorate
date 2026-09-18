@@ -17,7 +17,7 @@ public class FilmRepository extends BaseRepository<Film> {
 
     private static final String FIND_ALL_QUERY = "SELECT * FROM films";
 
-    private static final String FIND_BY_ID_QUERY = "SELECT f.* FROM films LEFT JOIN directors d ON f.director_id = f.id WHERE id = ?";
+    private static final String FIND_BY_ID_QUERY = "SELECT f.* FROM films f LEFT JOIN directors d ON f.director_id = d.id WHERE f.id = ?";
 
     private static final String INSERT_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa, director_id) " + "VALUES (?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, " + "duration = ?, mpa = ?, director_id = ? WHERE id = ?";
@@ -65,7 +65,12 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public Film addFilm(Film film) {
-        long id = insert(INSERT_QUERY, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa() != null ? film.getMpa().name() : null);
+        Long directorId = null;
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+            directorId = film.getDirectors().get(0).getId();
+        }
+
+        long id = insert(INSERT_QUERY, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa() != null ? film.getMpa().name() : null, directorId);
 
         return findById(id).orElseThrow(() -> new NotFoundException("Film was not saved"));
     }
