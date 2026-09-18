@@ -74,9 +74,10 @@ CREATE TABLE IF NOT EXISTS review_likes
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
-MERGE INTO genres (id, name) KEY (id) VALUES (1, 'Комедия'),
-                                             (2, 'Драма'),
-                                             (3, 'Мультфильм'),
-                                             (4, 'Триллер'),
-                                             (5, 'Документальный'),
-                                             (6, 'Боевик');
+MERGE  INTO genres (id, name) VALUES
+(1, 'Комедия'),
+(2, 'Драма'),
+(3, 'Мультфильм'),
+(4, 'Триллер'),
+(5, 'Документальный'),
+(6, 'Боевик');
