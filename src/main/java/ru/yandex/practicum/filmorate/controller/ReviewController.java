@@ -2,13 +2,12 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dto.NewReviewRequest;
-import ru.yandex.practicum.filmorate.dto.UpdateReviewRequest;
+import ru.yandex.practicum.filmorate.dto.review.NewReviewRequest;
+import ru.yandex.practicum.filmorate.dto.review.UpdateReviewRequest;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.model.film.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
@@ -75,54 +74,42 @@ public class ReviewController {
         return reviewService.getAllReviewsByFilmId(filmId, count);
     }
 
-    @PutMapping({"//like/{userId}", "/{id}/like/", "//like/", "//dislike/{userId}", "/{id}/dislike/", "//like/"})
-    public void noneIdOfReviewIdOrUserIdOnPutRequest() {
-        log.trace("Передан Put запрос на лайк/дизлайк отзыва пользователем без id");
-        throw new ConditionsNotMetException("Id отзыва и/или id пользователя должны быть указаны.");
-    }
-
     @PutMapping("/{id}/like/{userId}")
     public Review addLikeReview(
-            @NotNull(message = "Id должен быть указан")
             @Min(value = 1, message = "Id должно быть числом положительным")
             @PathVariable Long id,
 
-            @NotNull(message = "UserId должен быть указан")
             @Min(value = 1, message = "UserId должно быть числом положительным")
             @PathVariable Long userId) {
 
+        // Единица в параметрах метода предназначена для обозначения, что нужно в reviewService необходимо вызвать
+        // метод reviewLikeStorage.addUseful с параметром isUseful=true
         return reviewService.changeUsefulReview(id, userId, 1);
     }
 
     @PutMapping("/{id}/dislike/{userId}")
     public Review addDislikeReview(
-            @NotNull(message = "Id должен быть указан")
             @Min(value = 1, message = "Id должно быть числом положительным")
             @PathVariable Long id,
 
-            @NotNull(message = "UserId должен быть указан")
             @Min(value = 1, message = "UserId должно быть числом положительным")
             @PathVariable Long userId) {
 
+        // Ноль в параметрах метода предназначен для обозначения, что нужно в reviewService необходимо вызвать
+        // метод reviewLikeStorage.addUseful с параметром isUseful=false
         return reviewService.changeUsefulReview(id, userId, 0);
-    }
-
-    @DeleteMapping({"//like/{userId}", "/{id}/like/", "//like/", "//dislike/{userId}", "/{id}/dislike/", "//like/"})
-    public void noneIdOfReviewIdOrUserIdOnDeleteRequest() {
-        log.trace("Передан Delete запрос на удаление лайка/дизлайка отзыва пользователем без id");
-        throw new ConditionsNotMetException("Id отзыва и/или id пользователя должны быть указаны.");
     }
 
     @DeleteMapping({"/{id}/like/{userId}", "/{id}/dislike/{userId}"})
     public Review deleteLikeReview(
-            @NotNull(message = "Id должен быть указан")
             @Min(value = 1, message = "Id должно быть числом положительным")
             @PathVariable Long id,
 
-            @NotNull(message = "UserId должен быть указан")
             @Min(value = 1, message = "UserId должно быть числом положительным")
             @PathVariable Long userId) {
 
+        // Два в параметрах метода предназначена для обозначения, что нужно в reviewService необходимо вызвать
+        // метод reviewLikeStorage.deleteUseful
         return reviewService.changeUsefulReview(id, userId, 2);
     }
 }

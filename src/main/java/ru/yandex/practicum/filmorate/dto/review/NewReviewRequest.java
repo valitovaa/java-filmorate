@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dto;
+package ru.yandex.practicum.filmorate.dto.review;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

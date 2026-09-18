@@ -1,8 +1,8 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage.film.review;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dal.repositories.film.ReviewLikeRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.film.review.ReviewLikeRepository;
 
 @Component("reviewLikeDbStorage")
 @RequiredArgsConstructor

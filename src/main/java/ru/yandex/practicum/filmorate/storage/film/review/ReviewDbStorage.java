@@ -1,8 +1,8 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage.film.review;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dal.repositories.film.ReviewRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.film.review.ReviewRepository;
 import ru.yandex.practicum.filmorate.model.film.Review;
 
 import java.util.Collection;
