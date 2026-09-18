@@ -25,6 +25,20 @@ public class FilmRepository extends BaseRepository<Film> {
 
     private static final String FIND_BY_IDS_QUERY = "SELECT * FROM films WHERE id IN (%s)";
 
+    private static final String COMMON_FILMS_BY_USERS_QUERY = """
+            SELECT f.*
+            FROM films f
+                     JOIN film_likes fl1 ON f.id = fl1.film_id
+                     JOIN film_likes fl2 ON f.id = fl2.film_id
+            WHERE fl1.user_id = ?
+              AND fl2.user_id = ?
+            ORDER BY (
+                         SELECT COUNT(*)
+                         FROM film_likes fl
+                         WHERE fl.film_id = f.id
+                         ) DESC;
+            """;
+
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
     }
@@ -51,6 +65,10 @@ public class FilmRepository extends BaseRepository<Film> {
 
     public List<Film> findPopularFilms(int count) {
         return findMany(FIND_POPULAR_QUERY, count);
+    }
+
+    public List<Film> findCommonFilmsByUsers(long userId, long friendId) {
+        return findMany(COMMON_FILMS_BY_USERS_QUERY, userId, friendId);
     }
 
 

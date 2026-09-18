@@ -50,4 +50,9 @@ public class FilmDbStorage implements FilmStorage {
     public void removeLike(Long filmId, Long userId) {
         likeRepository.deleteLike(filmId, userId);
     }
+
+    @Override
+    public Collection<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
+        return filmRepository.findCommonFilmsByUsers(userId, friendId);
+    }
 }
