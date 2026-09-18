@@ -16,8 +16,10 @@ public class UserService {
 
     private final UserStorage userStorage;
 
+
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
+
     }
 
     public List<User> findAll() {
@@ -88,4 +90,5 @@ public class UserService {
             throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
         }
     }
+
 }

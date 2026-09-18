@@ -2,7 +2,7 @@ logging:
   level:
     root: INFO
     org.zalando.logbook: INFO
-    org.springframework.web: DEBUG
+    org.springframework.web: INFO
 
 spring:
   sql:
