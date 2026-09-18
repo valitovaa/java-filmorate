@@ -67,6 +67,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
     }
 
+    @Override
+    public Collection<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
 
     @Override
     public Optional<Film> findFilmById(Long id) {

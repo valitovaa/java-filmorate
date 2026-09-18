@@ -103,6 +103,22 @@ public class FilmService {
         return films;
     }
 
+    public Collection<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
+        if (userId.equals(friendId)) {
+            throw new ConditionsNotMetException("Идентификаторы пользователей не могут быть равны");
+        }
+
+        findUserOrThrow(userId);
+        findUserOrThrow(friendId);
+
+        Collection<Film> films = filmStorage.getCommonFilmsByUsers(userId, friendId);
+        for (Film film : films) {
+            film.setGenres(filmGenreStorage.getGenres(film.getId()));
+        }
+
+        return films;
+    }
+
     private Film findFilmOrThrow(Long id) {
         return filmStorage.findFilmById(id)
                 .orElseThrow(() ->
