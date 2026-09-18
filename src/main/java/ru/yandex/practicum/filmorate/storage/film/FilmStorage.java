@@ -22,4 +22,5 @@ public interface FilmStorage {
 
     void removeLike(Long filmId, Long userId);
 
+    Collection<Film> getCommonFilmsByUsers(Long userId,Long friendId);
 }
