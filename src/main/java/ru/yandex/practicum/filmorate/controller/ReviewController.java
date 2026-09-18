@@ -82,9 +82,7 @@ public class ReviewController {
             @Min(value = 1, message = "UserId должно быть числом положительным")
             @PathVariable Long userId) {
 
-        // Единица в параметрах метода предназначена для обозначения, что нужно в reviewService необходимо вызвать
-        // метод reviewLikeStorage.addUseful с параметром isUseful=true
-        return reviewService.changeUsefulReview(id, userId, 1);
+        return reviewService.changeUsefulReview(id, userId, ReviewService.Operation.ADD_LIKE);
     }
 
     @PutMapping("/{id}/dislike/{userId}")
@@ -95,9 +93,7 @@ public class ReviewController {
             @Min(value = 1, message = "UserId должно быть числом положительным")
             @PathVariable Long userId) {
 
-        // Ноль в параметрах метода предназначен для обозначения, что нужно в reviewService необходимо вызвать
-        // метод reviewLikeStorage.addUseful с параметром isUseful=false
-        return reviewService.changeUsefulReview(id, userId, 0);
+        return reviewService.changeUsefulReview(id, userId, ReviewService.Operation.ADD_DISLIKE);
     }
 
     @DeleteMapping({"/{id}/like/{userId}", "/{id}/dislike/{userId}"})
@@ -108,8 +104,6 @@ public class ReviewController {
             @Min(value = 1, message = "UserId должно быть числом положительным")
             @PathVariable Long userId) {
 
-        // Два в параметрах метода предназначена для обозначения, что нужно в reviewService необходимо вызвать
-        // метод reviewLikeStorage.deleteUseful
-        return reviewService.changeUsefulReview(id, userId, 2);
+        return reviewService.changeUsefulReview(id, userId, ReviewService.Operation.DELETE_USEFUL);
     }
 }
