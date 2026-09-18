@@ -55,7 +55,7 @@ public class FilmDbStorage implements FilmStorage {
     public Collection<Film> filmsByDirector(Long directorId, String sortBy) {
         return filmRepository.findFilmsByDirector(directorId, sortBy);
     }
-  
+
     public Collection<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
         return filmRepository.findCommonFilmsByUsers(userId, friendId);
     }
