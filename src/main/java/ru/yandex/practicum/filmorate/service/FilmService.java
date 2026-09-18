@@ -185,7 +185,7 @@ public class FilmService {
             throw new ValidationException("Id должен быть указан");
         }
 
-        if (sortBy == null && sortBy.isBlank()) {
+        if (sortBy == null || sortBy.isBlank()) {
             throw new ValidationException("Сортировка должна быть указана");
         }
 

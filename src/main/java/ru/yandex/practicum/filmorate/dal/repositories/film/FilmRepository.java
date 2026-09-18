@@ -17,7 +17,7 @@ public class FilmRepository extends BaseRepository<Film> {
 
     private static final String FIND_ALL_QUERY = "SELECT * FROM films";
 
-    private static final String FIND_BY_ID_QUERY = "SELECT f.* FROM films f LEFT JOIN directors d ON f.director_id = d.id WHERE f.id = ?";
+    private static final String FIND_BY_ID_QUERY = "SELECT f.*, d.name AS director_name FROM films f LEFT JOIN directors d ON f.director_id = d.id WHERE f.id = ?";
 
     private static final String INSERT_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa, director_id) " + "VALUES (?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, " + "duration = ?, mpa = ?, director_id = ? WHERE id = ?";
@@ -30,7 +30,7 @@ public class FilmRepository extends BaseRepository<Film> {
             "FROM films f " +
             "LEFT JOIN directors d ON f.director_id = d.id " +
             "WHERE f.director_id = ? " +
-            "ORDER BY like_count DESC, f.release_date ASC";
+            "ORDER BY like_count DESC, f.release_date DESC";
     private static final String FIND_FILMS_BY_YEAR = "SELECT f.*, d.name AS director_name " +
             "FROM films f " +
             "LEFT JOIN directors d ON f.director_id = d.id " +
