@@ -35,6 +35,13 @@ public class ErrorHandler {
         return new ErrorResponse(message);
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleMethodArgumentTypeMismatch(
+            MethodArgumentTypeMismatchException e) {
+        return new ErrorResponse("Некорректный параметр запроса");
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
             HttpMessageNotReadableException e) {
