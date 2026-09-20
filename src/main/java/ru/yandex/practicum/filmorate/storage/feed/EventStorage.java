@@ -16,10 +16,10 @@ public interface EventStorage {
 
     void removeFriend(Long userId, Long friendId);
 
-    void addReview(Long userId, Long filmId);
+    void addReview(Long userId, Long reviewId);
 
-    void removeReview(Long userId, Long filmId);
+    void removeReview(Long userId, Long reviewId);
 
-    void updateReview(Long userId, Long filmId);
+    void updateReview(Long userId, Long reviewId);
 
 }

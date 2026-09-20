@@ -36,19 +36,19 @@ public class EventDbStorage implements EventStorage {
     }
 
     @Override
-    public void addReview(Long userId, Long filmId) {
-        saveEvent(userId, EventType.REVIEW, Operation.ADD, filmId);
+    public void addReview(Long userId, Long reviewId) {
+        saveEvent(userId, EventType.REVIEW, Operation.ADD, reviewId);
     }
 
     @Override
-    public void removeReview(Long userId, Long filmId) {
-        saveEvent(userId, EventType.REVIEW, Operation.REMOVE, filmId);
+    public void removeReview(Long userId, Long reviewId) {
+        saveEvent(userId, EventType.REVIEW, Operation.REMOVE, reviewId);
 
     }
 
     @Override
-    public void updateReview(Long userId, Long filmId) {
-        saveEvent(userId, EventType.REVIEW, Operation.UPDATE, filmId);
+    public void updateReview(Long userId, Long reviewId) {
+        saveEvent(userId, EventType.REVIEW, Operation.UPDATE, reviewId);
     }
 
     @Override
