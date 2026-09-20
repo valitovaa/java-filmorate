@@ -15,7 +15,6 @@ public class UpdateReviewRequest {
     private Long userId;
     @Min(value = 1, message = "Id фильма должно быть числом положительным")
     private Long filmId;
-    private Long useful;
 
     public boolean hasContent() {
         return (content != null && !content.isBlank());
@@ -33,7 +32,4 @@ public class UpdateReviewRequest {
         return filmId != null;
     }
 
-    public boolean hasUseful() {
-        return useful != null;
-    }
 }

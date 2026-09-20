@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.model.film.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
-import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -62,7 +62,7 @@ public class ReviewController {
     }
 
     @GetMapping
-    public Collection<Review> getAllReviewsByFilmId(
+    public List<Review> getAllReviewsByFilmId(
             @RequestParam(defaultValue = "0") // значение по умолчанию 0 при отсутствии filmId в запросе
             Long filmId,
 
@@ -73,8 +73,6 @@ public class ReviewController {
         return reviewService.getAllReviewsByFilmId(filmId, count);
     }
 
-    // ADD_LIKE в параметрах метода предназначен для обозначения, что нужно в reviewService необходимо вызвать
-    // метод reviewLikeStorage.addUseful с параметром isUseful=true
     @PutMapping("/{id}/like/{userId}")
     public Review addLikeReview(
             @Min(value = 1, message = "Id должно быть числом положительным")
@@ -83,7 +81,7 @@ public class ReviewController {
             @Min(value = 1, message = "UserId должно быть числом положительным")
             @PathVariable Long userId) {
 
-        return reviewService.changeUsefulReview(id, userId, ReviewService.Operation.ADD_LIKE);
+        return reviewService.addLikeReview(id, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}")
@@ -94,9 +92,7 @@ public class ReviewController {
             @Min(value = 1, message = "UserId должно быть числом положительным")
             @PathVariable Long userId) {
 
-        // ADD_DISLIKE в параметрах метода предназначен для обозначения, что нужно в reviewService необходимо вызвать
-        // метод reviewLikeStorage.addUseful с параметром isUseful=false
-        return reviewService.changeUsefulReview(id, userId, ReviewService.Operation.ADD_DISLIKE);
+        return reviewService.addDislikeReview(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
@@ -107,9 +103,7 @@ public class ReviewController {
             @Min(value = 1, message = "UserId должно быть числом положительным")
             @PathVariable Long userId) {
 
-        // DELETE_LIKE в параметрах метода предназначена для обозначения, что нужно в reviewService необходимо вызвать
-        // метод reviewLikeStorage.deleteUseful с параметром true
-        return reviewService.changeUsefulReview(id, userId, ReviewService.Operation.DELETE_LIKE);
+        return reviewService.deleteLikeReview(id, userId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
@@ -120,8 +114,6 @@ public class ReviewController {
             @Min(value = 1, message = "UserId должно быть числом положительным")
             @PathVariable Long userId) {
 
-        // DELETE_DISLIKE в параметрах метода предназначена для обозначения, что нужно в reviewService необходимо вызвать
-        // метод reviewLikeStorage.deleteUseful с параметром false
-        return reviewService.changeUsefulReview(id, userId, ReviewService.Operation.DELETE_DISLIKE);
+        return reviewService.deleteDislikeReview(id, userId);
     }
 }

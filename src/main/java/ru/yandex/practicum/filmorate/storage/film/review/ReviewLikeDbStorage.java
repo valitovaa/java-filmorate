@@ -21,13 +21,7 @@ public class ReviewLikeDbStorage implements ReviewLikeStorage {
     }
 
     @Override
-    public long getCountLikes(Long reviewsId) {
-        return reviewLikeRepository.getCountLikes(reviewsId);
+    public long getUseful(Long reviewId) {
+        return reviewLikeRepository.getUseful(reviewId);
     }
-
-    @Override
-    public long getCountDislikes(Long reviewsId) {
-        return reviewLikeRepository.getCountDislikes(reviewsId);
-    }
-
 }

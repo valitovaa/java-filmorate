@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.review.NewReviewRequest;
@@ -13,9 +14,11 @@ import ru.yandex.practicum.filmorate.storage.film.review.ReviewLikeStorage;
 import ru.yandex.practicum.filmorate.storage.film.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Comparator;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class ReviewService {
 
@@ -23,6 +26,7 @@ public class ReviewService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final ReviewLikeStorage reviewLikeStorage;
+    private final Comparator<Review> reviewUsefulComparator = Comparator.comparing(Review::getUseful);
 
     public ReviewService(
             @Qualifier("reviewDbStorage") ReviewStorage reviewStorage,
@@ -37,14 +41,13 @@ public class ReviewService {
         this.reviewLikeStorage = reviewLikeStorage;
     }
 
-    public enum Operation {
-        ADD_LIKE, ADD_DISLIKE, DELETE_LIKE, DELETE_DISLIKE
-    }
+    public Review postReview(NewReviewRequest newReview) {
+        findFilmById(newReview.getFilmId());
+        findUserById(newReview.getUserId());
+        Review review = reviewStorage.postReview(ReviewMapper.mapToReview(newReview));
+        review.setUseful(getUseful(review.getReviewId()));
+        return review;
 
-    public Review postReview(NewReviewRequest review) {
-        findFilmById(review.getFilmId());
-        findUserById(review.getUserId());
-        return reviewStorage.postReview(ReviewMapper.mapToReview(review));
     }
 
     public Review updateReview(UpdateReviewRequest updateReview) {
@@ -68,7 +71,9 @@ public class ReviewService {
                 throw new ConditionsNotMetException(message);
             }
         }
-        return reviewStorage.updateReview(review);
+        reviewStorage.updateReview(review);
+        review.setUseful(getUseful(review.getReviewId()));
+        return review;
     }
 
     public void deleteReview(Long id) {
@@ -79,40 +84,59 @@ public class ReviewService {
         return findReviewById(id);
     }
 
-    public Collection<Review> getAllReviewsByFilmId(Long filmId, int count) {
+    public List<Review> getAllReviewsByFilmId(Long filmId, int count) {
         //filmId = 0, когда пользователь не указал этот параметр в запросе -> берем все отзывы
         if (filmId == 0L) {
-            return reviewStorage.getAllReviews().stream().limit(count).toList();
+            return reviewStorage.getAllReviews().stream()
+                    .limit(count)
+                    .sorted(reviewUsefulComparator)
+                    .map(r -> {
+                        r.setUseful(getUseful(r.getReviewId()));
+                        return r;
+                    })
+                    .toList();
         } else {
             findFilmById(filmId);
-            return reviewStorage.getAllReviewsByFilmId(filmId).stream().limit(count).toList();
+            return reviewStorage.getAllReviewsByFilmId(filmId).stream()
+                    .limit(count)
+                    .sorted(reviewUsefulComparator)
+                    .map(r -> {
+                        r.setUseful(getUseful(r.getReviewId()));
+                        return r;
+                    })
+                    .toList();
         }
     }
 
-    public Review changeUsefulReview(Long reviewId, Long userId, Operation operation) {
+    public Review addDislikeReview(Long reviewId, Long userId) {
         findUserById(userId);
         Review review = findReviewById(reviewId);
-        long usefulBeforeChanges = getUseful(reviewId);
-        switch (operation) {
-            case ADD_DISLIKE:
-                reviewLikeStorage.addUseful(reviewId, userId, false);
-                break;
-            case ADD_LIKE:
-                reviewLikeStorage.addUseful(reviewId, userId, true);
-                break;
-            case DELETE_LIKE:
-                reviewLikeStorage.deleteUseful(reviewId, userId, true);
-                break;
-            case DELETE_DISLIKE:
-                reviewLikeStorage.deleteUseful(reviewId, userId, false);
-                break;
-        }
-        long usefulAfterChanges = getUseful(reviewId);
+        reviewLikeStorage.addUseful(reviewId, userId, false);
+        review.setUseful(getUseful(reviewId));
+        return review;
+    }
 
-        if (usefulBeforeChanges != usefulAfterChanges) {
-            review.setUseful(usefulAfterChanges);
-            reviewStorage.updateReview(review);
-        }
+    public Review addLikeReview(Long reviewId, Long userId) {
+        findUserById(userId);
+        Review review = findReviewById(reviewId);
+        reviewLikeStorage.addUseful(reviewId, userId, true);
+        review.setUseful(getUseful(reviewId));
+        return review;
+    }
+
+    public Review deleteLikeReview(Long reviewId, Long userId) {
+        findUserById(userId);
+        Review review = findReviewById(reviewId);
+        reviewLikeStorage.deleteUseful(reviewId, userId, true);
+        review.setUseful(getUseful(reviewId));
+        return review;
+    }
+
+    public Review deleteDislikeReview(Long reviewId, Long userId) {
+        findUserById(userId);
+        Review review = findReviewById(reviewId);
+        reviewLikeStorage.deleteUseful(reviewId, userId, false);
+        review.setUseful(getUseful(reviewId));
         return review;
     }
 
@@ -127,11 +151,13 @@ public class ReviewService {
     }
 
     private Review findReviewById(Long id) {
-        return reviewStorage.getReviewById(id)
+        Review review = reviewStorage.getReviewById(id)
                 .orElseThrow(() -> new NotFoundException("Отзыв не найден, id=" + id));
+        review.setUseful(getUseful(id));
+        return review;
     }
 
     private long getUseful(Long reviewId) {
-        return reviewLikeStorage.getCountLikes(reviewId) - reviewLikeStorage.getCountDislikes(reviewId);
+        return reviewLikeStorage.getUseful(reviewId);
     }
 }

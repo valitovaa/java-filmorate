@@ -34,9 +34,5 @@ public class ReviewMapper {
         if (updateReview.hasFilmId()) {
             review.setFilmId(updateReview.getFilmId());
         }
-        if (updateReview.hasUseful()) {
-            review.setUseful(updateReview.getUseful());
-        }
-
     }
 }

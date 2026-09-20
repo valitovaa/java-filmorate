@@ -51,7 +51,6 @@ CREATE TABLE IF NOT EXISTS reviews
     is_positive BOOLEAN,
     user_id     BIGINT NOT NULL,
     film_id     BIGINT NOT NULL,
-    useful      BIGINT NOT NULL,
     PRIMARY KEY (review_id),
     CONSTRAINT unique_user_film UNIQUE (user_id, film_id),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,

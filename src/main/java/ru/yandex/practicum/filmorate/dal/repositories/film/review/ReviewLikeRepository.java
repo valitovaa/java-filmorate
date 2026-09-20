@@ -15,12 +15,6 @@ public class ReviewLikeRepository {
     private static final String ADD_USEFUL_QUERY = "MERGE INTO review_likes (review_id, user_id, is_useful) " +
             "KEY (review_id, user_id) VALUES (?, ?, ?)";
 
-    private static final String GET_COUNT_LIKES_QUERY =
-            "SELECT COUNT (*) FROM review_likes WHERE review_id = ? AND is_useful = true";
-
-    private static final String GET_COUNT_DISLIKES_QUERY =
-            "SELECT COUNT (*) FROM review_likes WHERE review_id = ? AND is_useful = false";
-
     private static final String DELETE_USEFUL_QUERY =
             "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_useful = ?";
 
@@ -28,13 +22,11 @@ public class ReviewLikeRepository {
         jdbc.update(ADD_USEFUL_QUERY, reviewId, userId, isUseful);
     }
 
-    public int getCountLikes(long reviewId) {
-        Integer count = jdbc.queryForObject(GET_COUNT_LIKES_QUERY, Integer.class, reviewId);
-        return count != null ? count : 0;
-    }
+    private static final String GET_USEFUL_QUERY =
+            "SELECT COALESCE (SUM (CASE WHEN is_useful THEN 1 ELSE -1 END), 0) FROM review_likes WHERE review_id = ?";
 
-    public int getCountDislikes(long reviewId) {
-        Integer count = jdbc.queryForObject(GET_COUNT_DISLIKES_QUERY, Integer.class, reviewId);
+    public int getUseful(long reviewId) {
+        Integer count = jdbc.queryForObject(GET_USEFUL_QUERY, Integer.class, reviewId);
         return count != null ? count : 0;
     }
 

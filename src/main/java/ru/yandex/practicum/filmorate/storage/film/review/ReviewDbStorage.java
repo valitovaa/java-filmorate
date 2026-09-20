@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dal.repositories.film.review.ReviewRepository;
 import ru.yandex.practicum.filmorate.model.film.Review;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Component("reviewDbStorage")
@@ -20,8 +20,8 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Review updateReview(Review review) {
-        return reviewRepository.updateReview(review);
+    public void updateReview(Review review) {
+        reviewRepository.updateReview(review);
     }
 
     @Override
@@ -35,12 +35,12 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Collection<Review> getAllReviewsByFilmId(Long filmId) {
+    public List<Review> getAllReviewsByFilmId(Long filmId) {
         return reviewRepository.findReviewsByFilmId(filmId);
     }
 
     @Override
-    public Collection<Review> getAllReviews() {
+    public List<Review> getAllReviews() {
         return reviewRepository.findAll();
     }
 
