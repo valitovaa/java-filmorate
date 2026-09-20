@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS directors (
 );
 
 CREATE TABLE film_directors (
-                                film_id     BIGINT NOT NULL REFERENCES films(id) ON DELETE CASCADE,
-                                director_id BIGINT NOT NULL REFERENCES directors(id) ON DELETE CASCADE,
-                                PRIMARY KEY (film_id, director_id)
+    film_id     BIGINT NOT NULL REFERENCES films(id) ON DELETE CASCADE,
+    director_id BIGINT NOT NULL REFERENCES directors(id) ON DELETE CASCADE,
+    PRIMARY KEY (film_id, director_id)
 );
 
 CREATE TABLE IF NOT EXISTS films (
@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS films (
     release_date DATE NOT NULL,
     duration INTEGER NOT NULL,
     mpa VARCHAR,
-    director_id BIGINT,
     FOREIGN KEY (director_id) REFERENCES directors(id)
 );
 

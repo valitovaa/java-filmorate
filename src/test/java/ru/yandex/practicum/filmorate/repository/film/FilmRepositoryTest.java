@@ -9,7 +9,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import ru.yandex.practicum.filmorate.dal.mappers.film.DirectorRowMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.film.FilmRowMapper;
+import ru.yandex.practicum.filmorate.dal.repositories.film.FilmDirectorsRepository;
 import ru.yandex.practicum.filmorate.dal.repositories.film.FilmRepository;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.MPA;
@@ -24,7 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase
 @Import({
         FilmRepository.class,
-        FilmRowMapper.class
+        FilmRowMapper.class,
+        FilmDirectorsRepository.class,
+        DirectorRowMapper.class
 })
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class FilmRepositoryTest {
