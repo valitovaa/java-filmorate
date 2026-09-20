@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS films (
     description VARCHAR NOT NULL,
     release_date DATE NOT NULL,
     duration INTEGER NOT NULL,
-    mpa VARCHAR,
+    mpa VARCHAR
 );
 
 CREATE TABLE film_directors (
