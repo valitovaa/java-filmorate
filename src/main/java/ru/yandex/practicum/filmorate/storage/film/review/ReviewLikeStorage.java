@@ -5,6 +5,4 @@ public interface ReviewLikeStorage {
     void addUseful(Long reviewId, Long userId, boolean isUseful);
 
     void deleteUseful(Long reviewId, Long userId, boolean isUseful);
-
-    long getUseful(Long reviewId);
 }

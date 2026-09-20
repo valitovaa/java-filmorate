@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.storage.film.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
-import java.util.Comparator;
 import java.util.Optional;
 
 @Slf4j
@@ -26,7 +25,6 @@ public class ReviewService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final ReviewLikeStorage reviewLikeStorage;
-    private final Comparator<Review> reviewUsefulComparator = Comparator.comparing(Review::getUseful);
 
     public ReviewService(
             @Qualifier("reviewDbStorage") ReviewStorage reviewStorage,
@@ -44,10 +42,7 @@ public class ReviewService {
     public Review postReview(NewReviewRequest newReview) {
         findFilmById(newReview.getFilmId());
         findUserById(newReview.getUserId());
-        Review review = reviewStorage.postReview(ReviewMapper.mapToReview(newReview));
-        review.setUseful(getUseful(review.getReviewId()));
-        return review;
-
+        return reviewStorage.postReview(ReviewMapper.mapToReview(newReview));
     }
 
     public Review updateReview(UpdateReviewRequest updateReview) {
@@ -72,7 +67,6 @@ public class ReviewService {
             }
         }
         reviewStorage.updateReview(review);
-        review.setUseful(getUseful(review.getReviewId()));
         return review;
     }
 
@@ -87,24 +81,10 @@ public class ReviewService {
     public List<Review> getAllReviewsByFilmId(Long filmId, int count) {
         //filmId = 0, когда пользователь не указал этот параметр в запросе -> берем все отзывы
         if (filmId == 0L) {
-            return reviewStorage.getAllReviews().stream()
-                    .limit(count)
-                    .sorted(reviewUsefulComparator)
-                    .map(r -> {
-                        r.setUseful(getUseful(r.getReviewId()));
-                        return r;
-                    })
-                    .toList();
+            return reviewStorage.getAllReviews().stream().limit(count).toList();
         } else {
             findFilmById(filmId);
-            return reviewStorage.getAllReviewsByFilmId(filmId).stream()
-                    .limit(count)
-                    .sorted(reviewUsefulComparator)
-                    .map(r -> {
-                        r.setUseful(getUseful(r.getReviewId()));
-                        return r;
-                    })
-                    .toList();
+            return reviewStorage.getAllReviewsByFilmId(filmId).stream().limit(count).toList();
         }
     }
 
@@ -112,7 +92,6 @@ public class ReviewService {
         findUserById(userId);
         Review review = findReviewById(reviewId);
         reviewLikeStorage.addUseful(reviewId, userId, false);
-        review.setUseful(getUseful(reviewId));
         return review;
     }
 
@@ -120,7 +99,6 @@ public class ReviewService {
         findUserById(userId);
         Review review = findReviewById(reviewId);
         reviewLikeStorage.addUseful(reviewId, userId, true);
-        review.setUseful(getUseful(reviewId));
         return review;
     }
 
@@ -128,7 +106,6 @@ public class ReviewService {
         findUserById(userId);
         Review review = findReviewById(reviewId);
         reviewLikeStorage.deleteUseful(reviewId, userId, true);
-        review.setUseful(getUseful(reviewId));
         return review;
     }
 
@@ -136,7 +113,6 @@ public class ReviewService {
         findUserById(userId);
         Review review = findReviewById(reviewId);
         reviewLikeStorage.deleteUseful(reviewId, userId, false);
-        review.setUseful(getUseful(reviewId));
         return review;
     }
 
@@ -151,13 +127,7 @@ public class ReviewService {
     }
 
     private Review findReviewById(Long id) {
-        Review review = reviewStorage.getReviewById(id)
+        return reviewStorage.getReviewById(id)
                 .orElseThrow(() -> new NotFoundException("Отзыв не найден, id=" + id));
-        review.setUseful(getUseful(id));
-        return review;
-    }
-
-    private long getUseful(Long reviewId) {
-        return reviewLikeStorage.getUseful(reviewId);
     }
 }

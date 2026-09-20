@@ -22,14 +22,6 @@ public class ReviewLikeRepository {
         jdbc.update(ADD_USEFUL_QUERY, reviewId, userId, isUseful);
     }
 
-    private static final String GET_USEFUL_QUERY =
-            "SELECT COALESCE (SUM (CASE WHEN is_useful THEN 1 ELSE -1 END), 0) FROM review_likes WHERE review_id = ?";
-
-    public int getUseful(long reviewId) {
-        Integer count = jdbc.queryForObject(GET_USEFUL_QUERY, Integer.class, reviewId);
-        return count != null ? count : 0;
-    }
-
     public void deleteUseful(long reviewId, long userId, boolean isUseful) {
         jdbc.update(DELETE_USEFUL_QUERY, reviewId, userId, isUseful);
     }

@@ -8,7 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.review.NewReviewRequest;
 import ru.yandex.practicum.filmorate.dto.review.UpdateReviewRequest;
-import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.model.film.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
@@ -33,24 +32,12 @@ public class ReviewController {
         return reviewService.updateReview(review);
     }
 
-    @DeleteMapping("/")
-    public void noneIdInDeleteRequest() {
-        log.trace("Передан Delete запрос на удаление отзыва по id без id");
-        throw new ConditionsNotMetException("Id должен быть указан.");
-    }
-
     @DeleteMapping("/{id}")
     public void deleteReview(
             @Min(value = 1, message = "Id должно быть числом положительным")
             @PathVariable Long id) {
 
         reviewService.deleteReview(id);
-    }
-
-    @GetMapping("/")
-    public void noneIdInGetRequest() {
-        log.trace("Передан Get запрос на получение отзыва по id без id");
-        throw new ConditionsNotMetException("Id должен быть указан.");
     }
 
     @GetMapping("/{id}")

@@ -19,19 +19,31 @@ public class ReviewRepository extends BaseRepository<Review> {
     private static final String INSERT_QUERY = "MERGE INTO reviews (content, is_positive, user_id, film_id) " +
             "KEY (user_id, film_id) VALUES (?, ?, ?, ?)";
 
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM reviews WHERE review_id = ?";
+    private static final String BASE_FIND_QUERY_PATH_ONE =
+            "SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, " +
+                    "COALESCE( SUM( CASE WHEN rl.is_useful = TRUE THEN 1 WHEN rl.is_useful = FALSE THEN -1 ELSE 0 END ), 0) " +
+                    "AS useful " +
+                    "FROM reviews r " +
+                    "LEFT JOIN review_likes rl ON rl.review_id = r.review_id ";
+
+    private static final String BASE_FIND_QUERY_PATH_TWO =
+            "GROUP BY r.review_id, r.content, r.is_positive, r.user_id, r.film_id ORDER BY useful DESC";
+
+    private static final String FIND_BY_ID_QUERY =
+            BASE_FIND_QUERY_PATH_ONE + "WHERE r.review_id = ? " + BASE_FIND_QUERY_PATH_TWO;
 
     private static final String UPDATE_QUERY = "UPDATE reviews SET content = ?, is_positive = ?, user_id = ?, " +
             "film_id = ? WHERE review_id = ?";
 
     private static final String FIND_BY_USER_ID_AND_FILM_ID_QUERY =
-            "SELECT * FROM reviews WHERE user_id = ? AND film_id = ?";
+            BASE_FIND_QUERY_PATH_ONE + "WHERE r.user_id = ? AND r.film_id = ? " + BASE_FIND_QUERY_PATH_TWO;
 
     private static final String DELETE_QUERY = "DELETE FROM reviews WHERE review_id = ?";
 
-    private static final String FIND_BY_FILM_ID_QUERY = "SELECT * FROM reviews WHERE film_id = ?";
+    private static final String FIND_BY_FILM_ID_QUERY =
+            BASE_FIND_QUERY_PATH_ONE + "WHERE r.film_id = ? " + BASE_FIND_QUERY_PATH_TWO;
 
-    private static final String FIND_ALL_QUERY = "SELECT * FROM reviews";
+    private static final String FIND_ALL_QUERY = BASE_FIND_QUERY_PATH_ONE + BASE_FIND_QUERY_PATH_TWO;
 
     public Review createReview(Review review) {
         long id = insert(

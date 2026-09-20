@@ -19,9 +19,4 @@ public class ReviewLikeDbStorage implements ReviewLikeStorage {
     public void deleteUseful(Long reviewId, Long userId, boolean isUseful) {
         reviewLikeRepository.deleteUseful(reviewId, userId, isUseful);
     }
-
-    @Override
-    public long getUseful(Long reviewId) {
-        return reviewLikeRepository.getUseful(reviewId);
-    }
 }
