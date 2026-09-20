@@ -1,76 +1,61 @@
 package ru.yandex.practicum.filmorate.dal.repositories.film;
 
-import org.springframework.dao.EmptyResultDataAccessException;
+import jakarta.validation.ValidationException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.mappers.film.DirectorRowMapper;
-import ru.yandex.practicum.filmorate.exception.DatabaseException;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.Director;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class DirectorRepository {
+public class    DirectorRepository extends BaseRepository<Director> {
     private static final String FIND_ALL_QUERY = "SELECT * FROM directors";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM directors WHERE id = ?";
     private static final String INSERT_QUERY = "INSERT INTO directors(name) VALUES (?)";
     private static final String UPDATE_QUERY = "UPDATE directors SET name = ? WHERE id = ?";
-    private static final String DELETE_QUERY = "DELETE directors WHERE id = ?";
+    private static final String DELETE_QUERY = "DELETE FROM directors WHERE id = ?";
 
-    private final JdbcTemplate jdbc;
-    private final DirectorRowMapper rowMapper;
-
-    public DirectorRepository(JdbcTemplate jdbc, DirectorRowMapper rowMapper) {
-        this.jdbc = jdbc;
-        this.rowMapper = rowMapper;
+    public DirectorRepository(JdbcTemplate jdbc, RowMapper<Director> rowMapper) {
+        super(jdbc, rowMapper);
     }
 
     public Director create(Director director) {
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbc.update(connection -> {
-            PreparedStatement ps = connection
-                    .prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, director.getName());
-            return ps; }, keyHolder);
-
-        Long id = keyHolder.getKeyAs(Long.class);
-
-        if (id != null) {
-            director.setId(id);
-            return director;
-        } else {
-            throw new DatabaseException("Не удалось сохранить данные");
+        if (director.getName() == null || director.getName().isBlank()) {
+            throw new ValidationException("Имя должно быть указано");
         }
-    }
 
-    public List<Director> getAllDirectors() {
-        return jdbc.query(FIND_ALL_QUERY, rowMapper);
-    }
-
-    public Optional<Director> getDirectorById(Long id) {
-        try {
-            return Optional.ofNullable(jdbc.queryForObject(FIND_BY_ID_QUERY, rowMapper, id));
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        long id = insert(INSERT_QUERY, director.getName());
+        return findOne(FIND_BY_ID_QUERY, id)
+                .orElseThrow(() -> new NotFoundException("Режиссёр не найден после сохранения"));
     }
 
     public Director update(Director director) {
-        int rowsAffected = jdbc.update(UPDATE_QUERY, director.getName(), director.getId());
-        if (rowsAffected == 0) {
-            throw new NotFoundException("Режиссёр не найден");
+        if (director.getId() == null) {
+            throw new ValidationException("Id должен быть указан");
         }
-        return director;
+        if (director.getName() == null || director.getName().isBlank()) {
+            throw new ValidationException("Имя должно быть указано");
+        }
+
+        update(UPDATE_QUERY, director.getName(), director.getId());
+        return findOne(FIND_BY_ID_QUERY, director.getId())
+                .orElseThrow(() -> new NotFoundException("Режиссёр не найден"));
+    }
+
+    public List<Director> getAllDirectors() {
+        return findMany(FIND_ALL_QUERY);
+    }
+
+    public Optional<Director> getDirectorById(Long id) {
+        return findOne(FIND_BY_ID_QUERY, id);
     }
 
     public void delete(Long id) {
-        int rowsAffected = jdbc.update(DELETE_QUERY, id);
-        if (rowsAffected == 0) {
+        if (!delete(DELETE_QUERY, id)) {
             throw new NotFoundException("Режиссёр не найден");
         }
     }

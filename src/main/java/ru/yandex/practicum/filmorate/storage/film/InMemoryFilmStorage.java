@@ -90,7 +90,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> filmsByDirector(Long directorId, String sortBy) {
+    public List<Film> filmsByDirector(Long directorId, String sortBy) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }

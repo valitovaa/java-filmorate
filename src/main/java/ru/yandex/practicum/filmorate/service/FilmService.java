@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -180,7 +181,7 @@ public class FilmService {
         }
     }
 
-    public Collection<Film> getFilmsByDirector(Long directorId, String sortBy) {
+    public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
         if (directorId == null) {
             throw new ValidationException("Id должен быть указан");
         }
