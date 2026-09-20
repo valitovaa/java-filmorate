@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.film.Review;
+import ru.yandex.practicum.filmorate.storage.feed.EventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.review.ReviewLikeStorage;
 import ru.yandex.practicum.filmorate.storage.film.review.ReviewStorage;
@@ -25,23 +26,27 @@ public class ReviewService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final ReviewLikeStorage reviewLikeStorage;
+    private final EventStorage eventStorage;
 
     public ReviewService(
             @Qualifier("reviewDbStorage") ReviewStorage reviewStorage,
             @Qualifier("filmDbStorage") FilmStorage filmStorage,
             @Qualifier("userDbStorage") UserStorage userStorage,
-            @Qualifier("reviewLikeDbStorage") ReviewLikeStorage reviewLikeStorage
+            @Qualifier("reviewLikeDbStorage") ReviewLikeStorage reviewLikeStorage,
+            @Qualifier("eventDbStorage") EventStorage eventStorage
 
     ) {
         this.reviewStorage = reviewStorage;
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.reviewLikeStorage = reviewLikeStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Review postReview(NewReviewRequest newReview) {
         findFilmById(newReview.getFilmId());
         findUserById(newReview.getUserId());
+        eventStorage.addReview(newReview.getUserId(), newReview.getFilmId());
         return reviewStorage.postReview(ReviewMapper.mapToReview(newReview));
     }
 
@@ -67,11 +72,17 @@ public class ReviewService {
             }
         }
         reviewStorage.updateReview(review);
+        eventStorage.updateReview(updateReview.getUserId(), updateReview.getFilmId());
         return review;
     }
 
     public void deleteReview(Long id) {
-        reviewStorage.deleteReviewById(id);
+        Optional<Review> review = reviewStorage.getReviewById(id);
+        if (review.isPresent()) {
+            reviewStorage.deleteReviewById(id);
+            eventStorage.updateReview(review.get().getUserId(), review.get().getFilmId());
+        }
+
     }
 
     public Review getReviewById(Long id) {

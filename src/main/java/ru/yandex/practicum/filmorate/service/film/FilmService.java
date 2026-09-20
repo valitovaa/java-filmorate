@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.film;
 
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -7,9 +7,10 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
-import ru.yandex.practicum.filmorate.storage.film.FilmGenreStorage;
+import ru.yandex.practicum.filmorate.storage.feed.EventStorage;
+import ru.yandex.practicum.filmorate.storage.film.genre.FilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.film.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -24,17 +25,20 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final FilmGenreStorage filmGenreStorage;
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     public FilmService(
             @Qualifier("filmDbStorage") FilmStorage filmStorage,
             @Qualifier("genreDbStorage") GenreStorage genreStorage,
             @Qualifier("filmGenreDbStorage") FilmGenreStorage filmGenreStorage,
-            @Qualifier("userDbStorage") UserStorage userStorage
+            @Qualifier("userDbStorage") UserStorage userStorage,
+            @Qualifier("eventDbStorage") EventStorage eventStorage
     ) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
         this.filmGenreStorage = filmGenreStorage;
         this.userStorage = userStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Collection<Film> findAll() {
@@ -43,6 +47,7 @@ public class FilmService {
         for (Film film : films) {
             film.setGenres(filmGenreStorage.getGenres(film.getId()));
         }
+
 
         return films;
     }
@@ -85,6 +90,7 @@ public class FilmService {
         findUserOrThrow(userId);
 
         filmStorage.like(filmId, userId);
+        eventStorage.addLike(userId,filmId);
     }
 
     public void removeLike(Long filmId, Long userId) {
@@ -92,6 +98,7 @@ public class FilmService {
         findUserOrThrow(userId);
 
         filmStorage.removeLike(filmId, userId);
+        eventStorage.removeLike(userId,filmId);
     }
 
     public Collection<Film> getPopularFilms(int count) {
