@@ -41,6 +41,9 @@ public class    DirectorRepository extends BaseRepository<Director> {
             throw new ValidationException("Имя должно быть указано");
         }
 
+        getDirectorById(director.getId())
+                .orElseThrow(() -> new NotFoundException("Режиссёр не найден"));
+
         update(UPDATE_QUERY, director.getName(), director.getId());
         return findOne(FIND_BY_ID_QUERY, director.getId())
                 .orElseThrow(() -> new NotFoundException("Режиссёр не найден"));

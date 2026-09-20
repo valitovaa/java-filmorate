@@ -124,11 +124,15 @@
         }
 
         private List<Film> findFilmsByLikes(Long directorId) {
-            return findMany(FIND_FILMS_BY_LIKES, directorId);
+            List<Film> films = findMany(FIND_FILMS_BY_LIKES, directorId);
+            films.forEach(f -> f.setDirectors(filmDirectorsRepository.getDirectorsByFilm(f.getId())));
+            return films;
         }
 
         private List<Film> findFilmsByYear(Long directorId) {
-            return findMany(FIND_FILMS_BY_YEAR, directorId);
+            List<Film> films = findMany(FIND_FILMS_BY_YEAR, directorId);
+            films.forEach(f -> f.setDirectors(filmDirectorsRepository.getDirectorsByFilm(f.getId())));
+            return films;
         }
 
         public List<Film> findCommonFilmsByUsers(long userId, long friendId) {
