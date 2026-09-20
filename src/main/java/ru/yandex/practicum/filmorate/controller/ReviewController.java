@@ -50,7 +50,7 @@ public class ReviewController {
 
     @GetMapping
     public List<Review> getAllReviewsByFilmId(
-            @RequestParam(defaultValue = "0") // значение по умолчанию 0 при отсутствии filmId в запросе
+            @RequestParam(required = false)
             Long filmId,
 
             @Min(value = 0, message = "Количество отзывов должно быть числом положительным")

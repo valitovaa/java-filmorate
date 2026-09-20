@@ -79,8 +79,7 @@ public class ReviewService {
     }
 
     public List<Review> getAllReviewsByFilmId(Long filmId, int count) {
-        //filmId = 0, когда пользователь не указал этот параметр в запросе -> берем все отзывы
-        if (filmId == 0L) {
+        if (filmId == null) {
             return reviewStorage.getAllReviews().stream().limit(count).toList();
         } else {
             findFilmById(filmId);
