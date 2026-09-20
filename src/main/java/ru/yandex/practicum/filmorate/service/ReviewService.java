@@ -38,7 +38,7 @@ public class ReviewService {
     }
 
     public enum Operation {
-        ADD_LIKE, ADD_DISLIKE, DELETE_USEFUL
+        ADD_LIKE, ADD_DISLIKE, DELETE_LIKE, DELETE_DISLIKE
     }
 
     public Review postReview(NewReviewRequest review) {
@@ -100,8 +100,11 @@ public class ReviewService {
             case ADD_LIKE:
                 reviewLikeStorage.addUseful(reviewId, userId, true);
                 break;
-            case DELETE_USEFUL:
-                reviewLikeStorage.deleteUseful(reviewId, userId);
+            case DELETE_LIKE:
+                reviewLikeStorage.deleteUseful(reviewId, userId, true);
+                break;
+            case DELETE_DISLIKE:
+                reviewLikeStorage.deleteUseful(reviewId, userId, false);
                 break;
         }
         long usefulAfterChanges = getUseful(reviewId);

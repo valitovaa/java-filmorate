@@ -21,7 +21,8 @@ public class ReviewLikeRepository {
     private static final String GET_COUNT_DISLIKES_QUERY =
             "SELECT COUNT (*) FROM review_likes WHERE review_id = ? AND is_useful = false";
 
-    private static final String DELETE_USEFUL_QUERY = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
+    private static final String DELETE_USEFUL_QUERY =
+            "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_useful = ?";
 
     public void addUseful(Long reviewId, Long userId, boolean isUseful) {
         jdbc.update(ADD_USEFUL_QUERY, reviewId, userId, isUseful);
@@ -37,7 +38,7 @@ public class ReviewLikeRepository {
         return count != null ? count : 0;
     }
 
-    public void deleteUseful(long reviewId, long userId) {
-        jdbc.update(DELETE_USEFUL_QUERY, reviewId, userId);
+    public void deleteUseful(long reviewId, long userId, boolean isUseful) {
+        jdbc.update(DELETE_USEFUL_QUERY, reviewId, userId, isUseful);
     }
 }

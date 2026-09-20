@@ -4,7 +4,7 @@ public interface ReviewLikeStorage {
 
     void addUseful(Long reviewId, Long userId, boolean isUseful);
 
-    void deleteUseful(Long reviewId, Long userId);
+    void deleteUseful(Long reviewId, Long userId, boolean isUseful);
 
     long getCountLikes(Long reviewsId);
 

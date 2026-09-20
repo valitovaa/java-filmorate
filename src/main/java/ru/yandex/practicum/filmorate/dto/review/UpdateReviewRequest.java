@@ -18,7 +18,7 @@ public class UpdateReviewRequest {
     private Long useful;
 
     public boolean hasContent() {
-        return !(content == null || content.isBlank());
+        return (content != null && !content.isBlank());
     }
 
     public boolean hasPositive() {

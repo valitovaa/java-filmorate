@@ -21,17 +21,17 @@ public class ReviewRepository extends BaseRepository<Review> {
 
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM reviews WHERE review_id = ?";
 
-    public static final String UPDATE_QUERY = "UPDATE reviews SET content = ?, is_positive = ?, user_id = ?, " +
+    private static final String UPDATE_QUERY = "UPDATE reviews SET content = ?, is_positive = ?, user_id = ?, " +
             "film_id = ?, useful = ? WHERE review_id = ?";
 
-    public static final String FIND_BY_USER_ID_AND_FILM_ID_QUERY =
+    private static final String FIND_BY_USER_ID_AND_FILM_ID_QUERY =
             "SELECT * FROM reviews WHERE user_id = ? AND film_id = ?";
 
-    public static final String DELETE_QUERY = "DELETE FROM reviews WHERE review_id = ?";
+    private static final String DELETE_QUERY = "DELETE FROM reviews WHERE review_id = ?";
 
-    public static final String FIND_BY_FILM_ID_QUERY = "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC";
+    private static final String FIND_BY_FILM_ID_QUERY = "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC";
 
-    public static final String FIND_ALL_QUERY = "SELECT * FROM reviews ORDER BY useful DESC";
+    private static final String FIND_ALL_QUERY = "SELECT * FROM reviews ORDER BY useful DESC";
 
     public Review createReview(Review review) {
         long id = insert(
