@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS films (
     mpa VARCHAR
 );
 
-CREATE TABLE film_directors (
+CREATE TABLE IF NOT EXISTS film_directors (
                                 film_id     BIGINT NOT NULL REFERENCES films(id) ON DELETE CASCADE,
                                 director_id BIGINT NOT NULL REFERENCES directors(id) ON DELETE CASCADE,
                                 PRIMARY KEY (film_id, director_id)
