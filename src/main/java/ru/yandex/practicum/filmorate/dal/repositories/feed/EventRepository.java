@@ -16,7 +16,7 @@ public class EventRepository extends BaseRepository<Event> {
             SELECT *
             FROM feed_events
             WHERE user_id = ?
-            ORDER BY timestamp DESC
+            ORDER BY timestamp ASC
             """;
 
     private static final String INSERT_QUERY = """
