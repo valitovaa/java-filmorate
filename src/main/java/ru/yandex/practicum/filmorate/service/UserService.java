@@ -1,98 +1,99 @@
-package ru.yandex.practicum.filmorate.service;
+    package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.user.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+    import org.springframework.beans.factory.annotation.Qualifier;
+    import org.springframework.stereotype.Service;
+    import org.springframework.util.StringUtils;
+    import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
+    import ru.yandex.practicum.filmorate.exception.NotFoundException;
+    import ru.yandex.practicum.filmorate.model.user.User;
+    import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.time.LocalDate;
-import java.util.*;
+    import java.time.LocalDate;
+    import java.util.*;
 
-@Service
-public class UserService {
+    @Service
+    public class UserService {
 
-    private final UserStorage userStorage;
+        private final UserStorage userStorage;
 
 
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
-        this.userStorage = userStorage;
+        public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+            this.userStorage = userStorage;
 
-    }
-
-    public List<User> findAll() {
-        return userStorage.findAll();
-    }
-
-    public User addUser(User user) {
-        validateBirthday(user);
-        validateLogin(user);
-        if (!StringUtils.hasText(user.getName())) {
-            user.setName(user.getLogin());
         }
-        return userStorage.addUser(user);
-    }
 
-    public User update(User user) {
-        validateLogin(user);
-        validateBirthday(user);
-        findUserOrThrow(user.getId());
-
-        return userStorage.update(user);
-    }
-
-    public Optional<User> findUserById(Long id) {
-        return userStorage.findUserById(id);
-    }
-
-    public void addFriend(Long userId, Long friendId) {
-        findUserOrThrow(userId);
-        findUserOrThrow(friendId);
-
-        userStorage.addFriend(userId, friendId);
-    }
-
-    public void removeFriend(Long userId, Long friendId) {
-        findUserOrThrow(userId);
-        findUserOrThrow(friendId);
-
-        userStorage.removeFriend(userId, friendId);
-    }
-
-    public List<User> getFriends(Long userId) {
-        findUserOrThrow(userId);
-
-        return userStorage.getFriends(userId);
-    }
-
-    public List<User> getCommonFriends(Long userId, Long otherUserId) {
-        findUserOrThrow(userId);
-        findUserOrThrow(otherUserId);
-
-        return userStorage.getCommonFriends(userId, otherUserId);
-    }
-
-
-    private void findUserOrThrow(Long id) {
-        userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
-    }
-
-    public void deleteUser(Long id) {
-        userStorage.deleteUser(id);
-    }
-
-    private void validateLogin(User user) {
-        if (!StringUtils.hasText(user.getLogin())) {
-            throw new ConditionsNotMetException("Логин не может быть пустым");
+        public List<User> findAll() {
+            return userStorage.findAll();
         }
-    }
 
-    private void validateBirthday(User user) {
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
+        public User addUser(User user) {
+            validateBirthday(user);
+            validateLogin(user);
+            if (!StringUtils.hasText(user.getName())) {
+                user.setName(user.getLogin());
+            }
+            return userStorage.addUser(user);
         }
-    }
 
-}
+        public User update(User user) {
+            validateLogin(user);
+            validateBirthday(user);
+            findUserOrThrow(user.getId());
+
+            return userStorage.update(user);
+        }
+
+        public Optional<User> findUserById(Long id) {
+            return userStorage.findUserById(id);
+        }
+
+        public void addFriend(Long userId, Long friendId) {
+            findUserOrThrow(userId);
+            findUserOrThrow(friendId);
+
+            userStorage.addFriend(userId, friendId);
+        }
+
+        public void removeFriend(Long userId, Long friendId) {
+            findUserOrThrow(userId);
+            findUserOrThrow(friendId);
+
+            userStorage.removeFriend(userId, friendId);
+        }
+
+        public List<User> getFriends(Long userId) {
+            findUserOrThrow(userId);
+
+            return userStorage.getFriends(userId);
+        }
+
+        public List<User> getCommonFriends(Long userId, Long otherUserId) {
+            findUserOrThrow(userId);
+            findUserOrThrow(otherUserId);
+
+            return userStorage.getCommonFriends(userId, otherUserId);
+        }
+
+
+        private void findUserOrThrow(Long id) {
+            userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
+        }
+
+        public void deleteUser(Long id) {
+            findUserOrThrow(id);
+            userStorage.deleteUser(id);
+        }
+
+        private void validateLogin(User user) {
+            if (!StringUtils.hasText(user.getLogin())) {
+                throw new ConditionsNotMetException("Логин не может быть пустым");
+            }
+        }
+
+        private void validateBirthday(User user) {
+            if (user.getBirthday().isAfter(LocalDate.now())) {
+                throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
+            }
+        }
+
+    }
