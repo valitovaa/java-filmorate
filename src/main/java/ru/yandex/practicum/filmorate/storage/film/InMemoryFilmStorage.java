@@ -89,4 +89,8 @@ public class InMemoryFilmStorage implements FilmStorage {
         return ++currentMaxId;
     }
 
+    @Override
+    public List<Film> filmsByDirector(Long directorId, String sortBy) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
 }

@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -29,4 +31,6 @@ public class Film {
     Set<Genre> genres;
 
     MPA mpa;
+
+    List<Director> directors = new ArrayList<>();
 }

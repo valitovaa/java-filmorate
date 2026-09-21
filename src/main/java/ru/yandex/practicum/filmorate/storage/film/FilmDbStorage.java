@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.dal.repositories.film.LikeRepository;
 import ru.yandex.practicum.filmorate.model.film.Film;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Component("filmDbStorage")
@@ -52,6 +53,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> filmsByDirector(Long directorId, String sortBy) {
+        return filmRepository.findFilmsByDirector(directorId, sortBy);
+    }
+
     public Collection<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
         return filmRepository.findCommonFilmsByUsers(userId, friendId);
     }
