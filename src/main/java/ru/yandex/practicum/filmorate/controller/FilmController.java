@@ -1,18 +1,23 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
+@Validated
 public class FilmController {
 
     private final FilmService filmService;
@@ -48,12 +53,42 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-        return filmService.getPopularFilms(count);
+    public Collection<Film> getPopularFilms(
+            @Min(value = 1, message = "Количество фильмов должно быть не отрицательным числом")
+            @RequestParam(defaultValue = "10")
+            int count,
+
+            @Positive(message = "Id жанра должно быть числом положительным")
+            @RequestParam(required = false)
+             Long genreId,
+
+            @Min(value = 1895, message = "Год выхода фильма на экран не может быть ранее 1895")
+            @RequestParam(required = false)
+            Long year
+
+    ) {
+        return filmService.getPopularFilms(count, genreId, year);
     }
 
     @GetMapping("/common")
     public Collection<Film> getCommonFilmsByUsers(@RequestParam Long userId, @RequestParam Long friendId) {
         return filmService.getCommonFilmsByUsers(userId, friendId);
     }
+
+    /*@GetMapping("/popular")
+    public List<Film> getMostPopularsFilm(
+            @Min(value = 1, message = "Количество фильмов должно быть не отрицательным числом")
+            @RequestParam(defaultValue = "10")
+            int count,
+
+            @Positive(message = "Id жанра должно быть числом положительным")
+            @RequestParam(required = false)
+            Long genreId,
+
+            @Min(value = 1895, message = "Год выхода фильма на экран не может быть ранее 1895")
+            @RequestParam(required = false)
+            Long year
+    ) {
+        return filmService.getMostPopularsFilm(count, genreId, year);
+    }*/
 }

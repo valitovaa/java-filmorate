@@ -92,14 +92,15 @@ public class FilmService {
         filmStorage.removeLike(filmId, userId);
     }
 
-    public Collection<Film> getPopularFilms(int count) {
-        Collection<Film> films = filmStorage.getPopularFilms(count);
+    public Collection<Film> getPopularFilms(int count, Long genreId, Long year) {
 
-        for (Film film : films) {
-            film.setGenres(filmGenreStorage.getGenres(film.getId()));
+        if (genreId != null) {
+            Genre genre = new Genre();
+            genre.setId(genreId);
+            genre.setName("Validation");
+            validateGenres(Set.of(genre));
         }
-
-        return films;
+        return filmStorage.getPopularFilms(count, genreId, year);
     }
 
     public Collection<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
