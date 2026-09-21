@@ -60,4 +60,9 @@ public class UserController {
     public List<Film> getRecommendedFilms(@PathVariable Long id) {
         return recommendationService.getRecommendedFilms(id);
     }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+    }
 }

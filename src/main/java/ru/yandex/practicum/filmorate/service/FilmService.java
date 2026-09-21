@@ -196,4 +196,8 @@ public class FilmService {
 
         return filmStorage.filmsByDirector(directorId, sortBy);
     }
+
+    public void deleteFilm(Long filmId) {
+        filmStorage.deleteFilm(filmId);
+    }
 }

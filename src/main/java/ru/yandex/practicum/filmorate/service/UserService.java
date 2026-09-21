@@ -79,6 +79,10 @@ public class UserService {
         userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
     }
 
+    public void deleteUser(Long id) {
+        userStorage.deleteUser(id);
+    }
+
     private void validateLogin(User user) {
         if (!StringUtils.hasText(user.getLogin())) {
             throw new ConditionsNotMetException("Логин не может быть пустым");

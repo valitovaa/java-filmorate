@@ -93,4 +93,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> filmsByDirector(Long directorId, String sortBy) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
 }

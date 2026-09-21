@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.repositories.film;
 
+import jakarta.validation.ValidationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -59,6 +60,8 @@ public class FilmRepository extends BaseRepository<Film> {
                          WHERE fl.film_id = f.id
                          ) DESC;
             """;
+
+    private static final String DELETE_QUERY = "DELETE FROM users WHERE id = ?";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper,
                           FilmDirectorsRepository filmDirectorsRepository) {
@@ -187,5 +190,15 @@ public class FilmRepository extends BaseRepository<Film> {
         List<Film> films = findMany(FIND_BY_IDS_QUERY.formatted(placeholders), filmIds.toArray());
         loadDirectorsForFilms(films);
         return films;
+    }
+
+    public void deleteFilm(Long filmId) {
+        if (filmId == null) {
+            throw new ValidationException("Id должен быть указан");
+        }
+        boolean deleted = delete(DELETE_QUERY, filmId);
+        if (!deleted) {
+            throw new NotFoundException("Фильм не найден");
+        }
     }
 }

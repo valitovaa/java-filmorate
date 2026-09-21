@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.repositories.user;
 
+import jakarta.validation.ValidationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -18,6 +19,7 @@ public class UserRepository extends BaseRepository<User> {
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
     private static final String INSERT_QUERY = "INSERT INTO users(login, email, birthday, name) " + "VALUES (?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE users SET login = ?, email = ?, birthday = ?, name = ? " + "WHERE id = ?";
+    private static final String DELETE_QUERY = "DELETE FROM users WHERE id = ?";
 
     public UserRepository(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
@@ -45,5 +47,15 @@ public class UserRepository extends BaseRepository<User> {
     public User update(User user) {
         update(UPDATE_QUERY, user.getLogin(), user.getEmail(), user.getBirthday(), user.getName(), user.getId());
         return user;
+    }
+
+    public void deleteUser(Long userId) {
+        if (userId == null) {
+            throw new ValidationException("Id должен быть указан");
+        }
+        boolean deleted = delete(DELETE_QUERY, userId);
+        if (!deleted) {
+            throw new NotFoundException("Пользователь не найден");
+        }
     }
 }

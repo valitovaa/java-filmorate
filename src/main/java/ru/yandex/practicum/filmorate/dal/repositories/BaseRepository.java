@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import ru.yandex.practicum.filmorate.exception.DatabaseException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
