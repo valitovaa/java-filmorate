@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
@@ -13,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -178,5 +180,21 @@ public class FilmService {
                     "Продолжительность должна быть положительной"
             );
         }
+    }
+
+    public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+        if (directorId == null) {
+            throw new ValidationException("Id должен быть указан");
+        }
+
+        if (sortBy == null || sortBy.isBlank()) {
+            throw new ValidationException("Сортировка должна быть указана");
+        }
+
+        if (!sortBy.equals("year") && !sortBy.equals("likes")) {
+            throw new ValidationException("Сортировка должна быть по лайкам либо годам");
+        }
+
+        return filmStorage.filmsByDirector(directorId, sortBy);
     }
 }
