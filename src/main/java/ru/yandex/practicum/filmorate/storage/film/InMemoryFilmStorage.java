@@ -77,7 +77,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return Optional.ofNullable(films.get(id));
     }
 
-    public List<Film> getPopularFilms(int count, Long genreId, Long year) {
+    public List<Film> getPopularFilms(Long count, Long genreId, Long year) {
         return films.values().stream().sorted(Comparator.comparingInt((Film film) -> likes.getOrDefault(film.getId(), Set.of()).size()).reversed()).limit(count).toList();
     }
 

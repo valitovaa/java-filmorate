@@ -100,7 +100,6 @@ public class FilmRepository extends BaseRepository<Film> {
             "ORDER BY likes DESC " +
             "LIMIT ?";
 
-    public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper,
                           FilmDirectorsRepository filmDirectorsRepository) {
         super(jdbc, mapper);
@@ -230,11 +229,13 @@ public class FilmRepository extends BaseRepository<Film> {
         return films;
     }
 
-    public List<Film> findMostPopularsFilm(int count, Long genreId, Long year) {
+    public List<Film> findMostPopularsFilm(Long count, Long genreId, Long year) {
 
         List<Film> films = new ArrayList<>();
         String addDateToSqlQuery = "DATE '" + year + "-01-01' AND DATE '" + year + "-12-31'";
-
+        if (count == null) {
+            count = (long) Integer.MAX_VALUE;
+        }
         if (genreId != null && year != null) {
             String finalSql = FIND_MOST_POPULARS_FILM_TO_GENRE_ID_AND_YEAR_QUERY.formatted(addDateToSqlQuery);
             films = findMany(finalSql, genreId, count);
@@ -248,7 +249,7 @@ public class FilmRepository extends BaseRepository<Film> {
             films = findMany(finalSql, count);
         }
         if (genreId == null && year == null) {
-            films = findPopularFilms(count);
+            films = findPopularFilms(count.intValue());
         }
 
         return fillGenreInFilms(films);

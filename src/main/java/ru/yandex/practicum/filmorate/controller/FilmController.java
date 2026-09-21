@@ -54,12 +54,12 @@ public class FilmController {
     @GetMapping("/popular")
     public Collection<Film> getPopularFilms(
             @Min(value = 1, message = "Количество фильмов должно быть не отрицательным числом")
-            @RequestParam(defaultValue = "10")
-            int count,
+            @RequestParam(required = false)
+            Long count,
 
             @Positive(message = "Id жанра должно быть числом положительным")
             @RequestParam(required = false)
-             Long genreId,
+            Long genreId,
 
             @Min(value = 1895, message = "Год выхода фильма на экран не может быть ранее 1895")
             @RequestParam(required = false)
@@ -79,21 +79,4 @@ public class FilmController {
     public Collection<Film> getCommonFilmsByUsers(@RequestParam Long userId, @RequestParam Long friendId) {
         return filmService.getCommonFilmsByUsers(userId, friendId);
     }
-
-    /*@GetMapping("/popular")
-    public List<Film> getMostPopularsFilm(
-            @Min(value = 1, message = "Количество фильмов должно быть не отрицательным числом")
-            @RequestParam(defaultValue = "10")
-            int count,
-
-            @Positive(message = "Id жанра должно быть числом положительным")
-            @RequestParam(required = false)
-            Long genreId,
-
-            @Min(value = 1895, message = "Год выхода фильма на экран не может быть ранее 1895")
-            @RequestParam(required = false)
-            Long year
-    ) {
-        return filmService.getMostPopularsFilm(count, genreId, year);
-    }*/
 }
