@@ -16,8 +16,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Set<Long>> likes = new HashMap<>();
 
     @Override
-    public Collection<Film> findAll() {
-        return films.values();
+    public List<Film> findAll() {
+        return new ArrayList<>(films.values());
     }
 
     @Override
@@ -68,7 +68,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
+    public List<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
@@ -78,7 +78,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return Optional.ofNullable(films.get(id));
     }
 
-    public Collection<Film> getPopularFilms(int count) {
+    public List<Film> getPopularFilms(int count) {
         return films.values().stream().sorted(Comparator.comparingInt((Film film) -> likes.getOrDefault(film.getId(), Set.of()).size()).reversed()).limit(count).toList();
     }
 
