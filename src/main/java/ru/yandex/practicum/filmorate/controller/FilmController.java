@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
-import java.util.List;
 
 @Slf4j
 @RestController
