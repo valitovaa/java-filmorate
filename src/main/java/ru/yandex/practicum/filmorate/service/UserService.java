@@ -43,8 +43,8 @@
             return userStorage.update(user);
         }
 
-        public Optional<User> findUserById(Long id) {
-            return userStorage.findUserById(id);
+        public User findUserById(Long id) {
+            return userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         }
 
         public void addFriend(Long userId, Long friendId) {
