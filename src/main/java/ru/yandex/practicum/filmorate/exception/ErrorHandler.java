@@ -76,14 +76,12 @@ public class ErrorHandler {
     }
 
 
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleException(Exception e) {
-        System.out.println("=== CRITICAL EXCEPTION ===");
-        System.out.println("Class: " + e.getClass().getName());
-        System.out.println("Message: " + e.getMessage());
-        e.printStackTrace();  // полный стектрейс тоже будет в логах
-        return new ErrorResponse(e.getMessage());
+        String debugMessage = e.getClass().getSimpleName() + ": " + e.getMessage();
+        return new ErrorResponse(debugMessage);
     }
 
 
