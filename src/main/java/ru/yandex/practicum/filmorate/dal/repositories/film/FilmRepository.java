@@ -60,7 +60,7 @@ public class FilmRepository extends BaseRepository<Film> {
                          ) DESC;
             """;
 
-    private static final String DELETE_QUERY = "DELETE FROM users WHERE id = ?";
+    private static final String DELETE_QUERY = "DELETE FROM films WHERE id = ?";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper,
                           FilmDirectorsRepository filmDirectorsRepository) {
