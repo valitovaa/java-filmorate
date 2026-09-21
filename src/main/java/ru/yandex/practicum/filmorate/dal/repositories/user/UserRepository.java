@@ -51,7 +51,7 @@ public class UserRepository extends BaseRepository<User> {
 
     public void deleteUser(Long userId) {
         if (userId == null) {
-            throw new ValidationException("Id должен быть указан");
+            throw new IllegalArgumentException("Id должен быть указан");
         }
         boolean deleted = delete(DELETE_QUERY, userId);
         if (!deleted) {

@@ -194,7 +194,7 @@ public class FilmRepository extends BaseRepository<Film> {
 
     public void deleteFilm(Long filmId) {
         if (filmId == null) {
-            throw new ValidationException("Id должен быть указан");
+            throw new IllegalArgumentException("Id должен быть указан");
         }
         boolean deleted = delete(DELETE_QUERY, filmId);
         if (!deleted) {
