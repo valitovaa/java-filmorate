@@ -8,18 +8,18 @@ public interface EventStorage {
 
     List<Event> findByUserId(Long userId);
 
-    void addLike(Long userId, Long filmId);
+    void addLikeEvent(Long userId, Long filmId);
 
-    void removeLike(Long userId, Long filmId);
+    void removeLikeEvent(Long userId, Long filmId);
 
-    void addFriend(Long userId, Long friendId);
+    void addFriendEvent(Long userId, Long friendId);
 
-    void removeFriend(Long userId, Long friendId);
+    void removeFriendEvent(Long userId, Long friendId);
 
-    void addReview(Long userId, Long reviewId);
+    void addReviewEvent(Long userId, Long reviewId);
 
-    void removeReview(Long userId, Long reviewId);
+    void removeReviewEvent(Long userId, Long reviewId);
 
-    void updateReview(Long userId, Long reviewId);
+    void updateReviewEvent(Long userId, Long reviewId);
 
 }

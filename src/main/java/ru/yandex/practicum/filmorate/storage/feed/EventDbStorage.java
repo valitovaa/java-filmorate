@@ -16,38 +16,38 @@ public class EventDbStorage implements EventStorage {
     private final EventRepository eventRepository;
 
     @Override
-    public void addLike(Long userId, Long filmId) {
+    public void addLikeEvent(Long userId, Long filmId) {
         saveEvent(userId, EventType.LIKE, Operation.ADD, filmId);
     }
 
     @Override
-    public void removeLike(Long userId, Long filmId) {
+    public void removeLikeEvent(Long userId, Long filmId) {
         saveEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
     @Override
-    public void addFriend(Long userId, Long friendId) {
+    public void addFriendEvent(Long userId, Long friendId) {
         saveEvent(userId, EventType.FRIEND, Operation.ADD, friendId);
     }
 
     @Override
-    public void removeFriend(Long userId, Long friendId) {
+    public void removeFriendEvent(Long userId, Long friendId) {
         saveEvent(userId, EventType.FRIEND, Operation.REMOVE, friendId);
     }
 
     @Override
-    public void addReview(Long userId, Long reviewId) {
+    public void addReviewEvent(Long userId, Long reviewId) {
         saveEvent(userId, EventType.REVIEW, Operation.ADD, reviewId);
     }
 
     @Override
-    public void removeReview(Long userId, Long reviewId) {
+    public void removeReviewEvent(Long userId, Long reviewId) {
         saveEvent(userId, EventType.REVIEW, Operation.REMOVE, reviewId);
 
     }
 
     @Override
-    public void updateReview(Long userId, Long reviewId) {
+    public void updateReviewEvent(Long userId, Long reviewId) {
         saveEvent(userId, EventType.REVIEW, Operation.UPDATE, reviewId);
     }
 

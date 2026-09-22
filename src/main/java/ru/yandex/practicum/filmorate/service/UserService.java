@@ -57,7 +57,7 @@ public class UserService {
         findUserOrThrow(friendId);
 
         userStorage.addFriend(userId, friendId);
-        eventStorage.addFriend(userId, friendId);
+        eventStorage.addFriendEvent(userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
@@ -65,7 +65,7 @@ public class UserService {
         findUserOrThrow(friendId);
 
         userStorage.removeFriend(userId, friendId);
-        eventStorage.removeFriend(userId,friendId);
+        eventStorage.removeFriendEvent(userId,friendId);
     }
 
     public List<User> getFriends(Long userId) {

@@ -47,7 +47,7 @@ public class ReviewService {
         findFilmById(newReview.getFilmId());
         findUserById(newReview.getUserId());
         Review review = reviewStorage.postReview(ReviewMapper.mapToReview(newReview));
-        eventStorage.addReview(review.getUserId(), review.getReviewId());
+        eventStorage.addReviewEvent(review.getUserId(), review.getReviewId());
         return review;
     }
 
@@ -73,7 +73,7 @@ public class ReviewService {
             }
         }
         reviewStorage.updateReview(review);
-        eventStorage.updateReview(updateReview.getUserId(), updateReview.getReviewId());
+        eventStorage.updateReviewEvent(review.getUserId(), review.getReviewId());
         return review;
     }
 
@@ -81,7 +81,7 @@ public class ReviewService {
         Optional<Review> review = reviewStorage.getReviewById(id);
         if (review.isPresent()) {
             reviewStorage.deleteReviewById(id);
-            eventStorage.removeReview(review.get().getUserId(), review.get().getReviewId());
+            eventStorage.removeReviewEvent(review.get().getUserId(), review.get().getReviewId());
         }
 
     }

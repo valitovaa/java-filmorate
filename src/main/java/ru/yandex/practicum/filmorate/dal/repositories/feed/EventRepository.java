@@ -4,7 +4,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
-import ru.yandex.practicum.filmorate.exception.DatabaseException;
 import ru.yandex.practicum.filmorate.model.feed.Event;
 
 import java.util.List;
@@ -40,7 +39,7 @@ public class EventRepository extends BaseRepository<Event> {
         super(jdbc, mapper);
     }
 
-    public Event addEvent(Event event) {
+    public void addEvent(Event event) {
         long id = insert(
                 INSERT_QUERY,
                 event.getTimestamp(),
@@ -50,9 +49,7 @@ public class EventRepository extends BaseRepository<Event> {
                 event.getEntityId()
         );
 
-        return findOne(FIND_BY_ID_QUERY, id).orElseThrow(
-                () -> new DatabaseException("Не удалось найти добавленное событие")
-        );
+        event.setEventId(id);
     }
 
     public List<Event> findByUserId(Long userId) {

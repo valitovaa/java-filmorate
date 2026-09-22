@@ -90,7 +90,7 @@ public class FilmService {
         findUserOrThrow(userId);
 
         filmStorage.like(filmId, userId);
-        eventStorage.addLike(userId,filmId);
+        eventStorage.addLikeEvent(userId,filmId);
     }
 
     public void removeLike(Long filmId, Long userId) {
@@ -98,7 +98,7 @@ public class FilmService {
         findUserOrThrow(userId);
 
         filmStorage.removeLike(filmId, userId);
-        eventStorage.removeLike(userId,filmId);
+        eventStorage.removeLikeEvent(userId,filmId);
     }
 
     public Collection<Film> getPopularFilms(int count) {
