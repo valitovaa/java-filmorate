@@ -114,6 +114,10 @@ public class FilmRepository extends BaseRepository<Film> {
                 filmIds.toArray()
         );
 
+        if (directorsByFilmId == null) {
+            return;
+        }
+
         films.forEach(f -> f.setDirectors(
                 directorsByFilmId.getOrDefault(f.getId(), List.of())
         ));
