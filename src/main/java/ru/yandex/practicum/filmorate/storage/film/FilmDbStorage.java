@@ -39,7 +39,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getPopularFilms(Long count, Long genreId, Long year) {
-        return filmRepository.findMostPopularsFilm(count, genreId, year);
+        return filmRepository.findPopularFilms(count, genreId, year);
     }
 
     @Override

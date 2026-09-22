@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +52,7 @@ public class FilmController {
 
     @GetMapping("/popular")
     public Collection<Film> getPopularFilms(
-            @Min(value = 1, message = "Количество фильмов должно быть не отрицательным числом")
+            @Positive(message = "Количество фильмов должно быть не отрицательным числом")
             @RequestParam(required = false)
             Long count,
 
@@ -61,11 +60,8 @@ public class FilmController {
             @RequestParam(required = false)
             Long genreId,
 
-            @Min(value = 1895, message = "Год выхода фильма на экран не может быть ранее 1895")
             @RequestParam(required = false)
-            Long year
-
-    ) {
+            Long year) {
         return filmService.getPopularFilms(count, genreId, year);
     }
 

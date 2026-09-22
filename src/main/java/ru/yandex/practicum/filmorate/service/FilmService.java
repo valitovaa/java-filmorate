@@ -95,11 +95,14 @@ public class FilmService {
     }
 
     public Collection<Film> getPopularFilms(Long count, Long genreId, Long year) {
-
+        if (year != null) {
+            Film film = new Film();
+            film.setReleaseDate(LocalDate.of(year.intValue(), 1, 1));
+            validateReleaseDate(film);
+        }
         if (genreId != null) {
             Genre genre = new Genre();
             genre.setId(genreId);
-            genre.setName("Validation");
             validateGenres(Set.of(genre));
         }
         return filmStorage.getPopularFilms(count, genreId, year);
