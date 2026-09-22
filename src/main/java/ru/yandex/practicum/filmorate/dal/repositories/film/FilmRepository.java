@@ -114,12 +114,9 @@ public class FilmRepository extends BaseRepository<Film> {
                 filmIds.toArray()
         );
 
-        films.forEach(f -> {
-            assert directorsByFilmId != null;
-            f.setDirectors(
-                    directorsByFilmId.getOrDefault(f.getId(), List.of())
-            );
-        });
+        films.forEach(f -> f.setDirectors(
+                directorsByFilmId.getOrDefault(f.getId(), List.of())
+        ));
     }
 
     public List<Film> findAll() {
