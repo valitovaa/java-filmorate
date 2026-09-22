@@ -80,8 +80,7 @@ public class ErrorHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleException(Exception e) {
-        String debugMessage = e.getClass().getSimpleName() + ": " + e.getMessage();
-        return new ErrorResponse(debugMessage);
+        return new ErrorResponse(e.getMessage());
     }
 
 

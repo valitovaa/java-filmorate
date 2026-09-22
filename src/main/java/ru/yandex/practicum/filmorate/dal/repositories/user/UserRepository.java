@@ -49,9 +49,6 @@ public class UserRepository extends BaseRepository<User> {
     }
 
     public void deleteUser(Long userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException("Id должен быть указан");
-        }
         boolean deleted = delete(DELETE_QUERY, userId);
         if (!deleted) {
             throw new NotFoundException("Пользователь не найден");
