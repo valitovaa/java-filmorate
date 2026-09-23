@@ -27,4 +27,9 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
     public void deleteGenres(Long filmId) {
         filmGenreRepository.deleteGenres(filmId);
     }
+
+    @Override
+    public void addGenres(Long filmId, Set<Genre> genres) {
+        filmGenreRepository.addGenres(filmId, genres);
+    }
 }

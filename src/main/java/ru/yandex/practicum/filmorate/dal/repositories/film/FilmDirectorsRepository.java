@@ -24,9 +24,15 @@ public class FilmDirectorsRepository extends BaseRepository<Director> {
     }
 
     public void addDirectorsToFilm(Long filmId, List<Director> directors) {
-        for (Director director : directors) {
-            jdbc.update(INSERT_QUERY, filmId, director.getId());
-        }
+        jdbc.batchUpdate(
+                INSERT_QUERY,
+                directors,
+                directors.size(),
+                (ps, director) -> {
+                    ps.setLong(1, filmId);
+                    ps.setLong(2, director.getId());
+                }
+        );
     }
 
     public void deleteDirectorsByFilm(Long filmId) {

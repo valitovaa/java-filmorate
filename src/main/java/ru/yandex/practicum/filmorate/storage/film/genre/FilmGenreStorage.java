@@ -11,4 +11,6 @@ public interface FilmGenreStorage {
     void addGenre(Long filmId, Long genreId);
 
     void deleteGenres(Long filmId);
+
+    void addGenres(Long filmId, Set<Genre> genres);
 }

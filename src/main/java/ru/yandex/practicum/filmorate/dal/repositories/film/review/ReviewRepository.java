@@ -41,9 +41,15 @@ public class ReviewRepository extends BaseRepository<Review> {
     private static final String DELETE_QUERY = "DELETE FROM reviews WHERE review_id = ?";
 
     private static final String FIND_BY_FILM_ID_QUERY =
-            BASE_FIND_QUERY_PATH_ONE + "WHERE r.film_id = ? " + BASE_FIND_QUERY_PATH_TWO;
+            BASE_FIND_QUERY_PATH_ONE
+                    + "WHERE r.film_id = ? "
+                    + BASE_FIND_QUERY_PATH_TWO
+                    + " LIMIT ?";
 
-    private static final String FIND_ALL_QUERY = BASE_FIND_QUERY_PATH_ONE + BASE_FIND_QUERY_PATH_TWO;
+    private static final String FIND_ALL_QUERY =
+            BASE_FIND_QUERY_PATH_ONE
+                    + BASE_FIND_QUERY_PATH_TWO
+                    + " LIMIT ?";
 
     public Review createReview(Review review) {
         long id = insert(
@@ -80,11 +86,11 @@ public class ReviewRepository extends BaseRepository<Review> {
         delete(DELETE_QUERY, id);
     }
 
-    public List<Review> findReviewsByFilmId(Long filmId) {
-        return findMany(FIND_BY_FILM_ID_QUERY, filmId);
+    public List<Review> findReviewsByFilmId(Long filmId, int count) {
+        return findMany(FIND_BY_FILM_ID_QUERY, filmId, count);
     }
 
-    public List<Review> findAll() {
-        return findMany(FIND_ALL_QUERY);
+    public List<Review> findAll(int count) {
+        return findMany(FIND_ALL_QUERY, count);
     }
 }

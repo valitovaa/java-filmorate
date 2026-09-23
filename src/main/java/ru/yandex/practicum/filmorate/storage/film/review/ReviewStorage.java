@@ -15,9 +15,9 @@ public interface ReviewStorage {
 
     Optional<Review> getReviewById(Long id);
 
-    List<Review> getAllReviewsByFilmId(Long id);
+    List<Review> getAllReviews(int count);
 
-    List<Review> getAllReviews();
+    List<Review> getAllReviewsByFilmId(Long filmId, int count);
 
     Optional<Review> findReviewByUserIdAndFilmId(Long userId, Long filmId);
 }

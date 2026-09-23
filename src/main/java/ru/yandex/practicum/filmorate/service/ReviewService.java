@@ -55,19 +55,28 @@ public class ReviewService {
         Review review = findReviewById(updateReview.getReviewId());
         ReviewMapper.updateReviewFields(review, updateReview);
 
+        Optional<Review> otherReview =
+                reviewStorage.findReviewByUserIdAndFilmId(
+                        review.getUserId(),
+                        review.getFilmId()
+                );
+
         //Пара user_id и film_id уникальная для таблицы reviews. Проверяем наличие такой пары в другом отзыве
-        Optional<Review> otherReview = reviewStorage.findReviewByUserIdAndFilmId(review.getUserId(), review.getFilmId());
-        if (otherReview.isPresent()) {
-            if (!(otherReview.get().getReviewId().equals(review.getReviewId()))) {
+        otherReview.ifPresent(preview -> {
+            if (!preview.getReviewId().equals(review.getReviewId())) {
                 String message = String.format(
-                        "Пользовать с id=%s уже оставлял отзыв к фильму с id=%s под id=%s",
-                        review.getUserId(), review.getFilmId(), otherReview.get().getReviewId()
+                        "Пользователь с id=%s уже оставлял отзыв к фильму с id=%s под id=%s",
+                        review.getUserId(),
+                        review.getFilmId(),
+                        preview.getReviewId()
                 );
                 throw new ConditionsNotMetException(message);
             }
-        }
+        });
+
         reviewStorage.updateReview(review);
         eventStorage.updateReviewEvent(review.getUserId(), review.getReviewId());
+
         return review;
     }
 
@@ -86,11 +95,11 @@ public class ReviewService {
 
     public List<Review> getAllReviewsByFilmId(Long filmId, int count) {
         if (filmId == null) {
-            return reviewStorage.getAllReviews().stream().limit(count).toList();
-        } else {
-            findFilmById(filmId);
-            return reviewStorage.getAllReviewsByFilmId(filmId).stream().limit(count).toList();
+            return reviewStorage.getAllReviews(count);
         }
+
+        findFilmById(filmId);
+        return reviewStorage.getAllReviewsByFilmId(filmId, count);
     }
 
     public Review addDislikeReview(Long reviewId, Long userId) {

@@ -35,13 +35,13 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public List<Review> getAllReviewsByFilmId(Long filmId) {
-        return reviewRepository.findReviewsByFilmId(filmId);
+    public List<Review> getAllReviews(int count) {
+        return reviewRepository.findAll(count);
     }
 
     @Override
-    public List<Review> getAllReviews() {
-        return reviewRepository.findAll();
+    public List<Review> getAllReviewsByFilmId(Long filmId, int count) {
+        return reviewRepository.findReviewsByFilmId(filmId, count);
     }
 
     @Override

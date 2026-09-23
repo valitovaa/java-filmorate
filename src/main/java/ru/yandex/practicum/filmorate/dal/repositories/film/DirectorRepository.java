@@ -24,9 +24,6 @@ public class    DirectorRepository extends BaseRepository<Director> {
     }
 
     public Director create(Director director) {
-        if (director.getName() == null || director.getName().isBlank()) {
-            throw new ValidationException("Имя должно быть указано");
-        }
 
         long id = insert(INSERT_QUERY, director.getName());
         return findOne(FIND_BY_ID_QUERY, id)
@@ -37,12 +34,6 @@ public class    DirectorRepository extends BaseRepository<Director> {
         if (director.getId() == null) {
             throw new ValidationException("Id должен быть указан");
         }
-        if (director.getName() == null || director.getName().isBlank()) {
-            throw new ValidationException("Имя должно быть указано");
-        }
-
-        getDirectorById(director.getId())
-                .orElseThrow(() -> new NotFoundException("Режиссёр не найден"));
 
         update(UPDATE_QUERY, director.getName(), director.getId());
         return findOne(FIND_BY_ID_QUERY, director.getId())

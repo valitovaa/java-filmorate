@@ -33,13 +33,7 @@ public class FilmService {
     private final EventStorage eventStorage;
     private final DirectorService directorService;
 
-    public FilmService(
-            @Qualifier("filmDbStorage") FilmStorage filmStorage,
-            @Qualifier("genreDbStorage") GenreStorage genreStorage,
-            @Qualifier("filmGenreDbStorage") FilmGenreStorage filmGenreStorage,
-            @Qualifier("userDbStorage") UserStorage userStorage,
-            @Qualifier("eventDbStorage") EventStorage eventStorage,
-            DirectorService directorService) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, @Qualifier("genreDbStorage") GenreStorage genreStorage, @Qualifier("filmGenreDbStorage") FilmGenreStorage filmGenreStorage, @Qualifier("userDbStorage") UserStorage userStorage, @Qualifier("eventDbStorage") EventStorage eventStorage, DirectorService directorService) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
         this.filmGenreStorage = filmGenreStorage;
@@ -58,7 +52,6 @@ public class FilmService {
 
     public Film postFilm(Film film) {
         validateReleaseDate(film);
-        validateDuration(film);
         validateGenres(film.getGenres());
 
         Film savedFilm = filmStorage.postFilm(film);
@@ -70,7 +63,6 @@ public class FilmService {
 
     public Film update(Film film) {
         validateReleaseDate(film);
-        validateDuration(film);
 
         findFilmOrThrow(film.getId());
         validateGenres(film.getGenres());
@@ -142,65 +134,44 @@ public class FilmService {
     }
 
     private Film findFilmOrThrow(Long id) {
-        return filmStorage.findFilmById(id)
-                .orElseThrow(() ->
-                        new NotFoundException(
-                                "Фильм с id = " + id + " не найден"
-                        )
-                );
+        return filmStorage.findFilmById(id).orElseThrow(() -> new NotFoundException("Фильм с id = " + id + " не найден"));
     }
 
     private void findUserOrThrow(Long id) {
-        userStorage.findUserById(id)
-                .orElseThrow(() ->
-                        new NotFoundException(
-                                "Пользователь с id = " + id + " не найден"
-                        )
-                );
+        userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
     }
 
     private void validateGenres(Set<Genre> genres) {
-        if (genres == null) {
+        if (genres == null || genres.isEmpty()) {
             return;
         }
 
-        for (Genre genre : genres) {
-            genreStorage.findById(genre.getId())
-                    .orElseThrow(() ->
-                            new NotFoundException(
-                                    "Жанр с id = " + genre.getId() + " не найден"
-                            )
-                    );
+        Set<Long> genreIds = genres.stream().map(Genre::getId).collect(Collectors.toSet());
+
+        Set<Long> existingIds = genreStorage.findExistingIds(genreIds);
+
+        for (Long genreId : genreIds) {
+            if (!existingIds.contains(genreId)) {
+                throw new NotFoundException("Жанр с id = " + genreId + " не найден");
+            }
         }
     }
 
     private void saveGenres(Long filmId, Set<Genre> genres) {
-        if (genres == null) {
+        if (genres == null || genres.isEmpty()) {
             return;
         }
-
-        for (Genre genre : genres) {
-            filmGenreStorage.addGenre(filmId, genre.getId());
-        }
+        filmGenreStorage.addGenres(filmId, genres);
     }
 
     private void validateReleaseDate(Film film) {
         LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
 
         if (film.getReleaseDate().isBefore(minReleaseDate)) {
-            throw new ConditionsNotMetException(
-                    "Дата релиза не может быть раньше 28 декабря 1895 года"
-            );
+            throw new ConditionsNotMetException("Дата релиза не может быть раньше 28 декабря 1895 года");
         }
     }
 
-    private void validateDuration(Film film) {
-        if (film.getDuration() <= 0) {
-            throw new ConditionsNotMetException(
-                    "Продолжительность должна быть положительной"
-            );
-        }
-    }
 
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
         if (directorId == null) {
@@ -222,23 +193,16 @@ public class FilmService {
 
     //валидатор поисковых строк
     private Set<String> parseAndValidateSearchFields(String by) {
-        Set<String> fields = Arrays.stream(by.split(","))
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet());
+        Set<String> fields = Arrays.stream(by.split(",")).map(String::trim).map(String::toLowerCase).collect(Collectors.toSet());
 
         if (fields.isEmpty()) {
             throw new IllegalArgumentException("Параметр 'by' не может быть пустым");
         }
 
-        Set<String> unknown = fields.stream()
-                .filter(f -> !ALLOWED_SEARCH_FIELDS.contains(f))
-                .collect(Collectors.toSet());
+        Set<String> unknown = fields.stream().filter(f -> !ALLOWED_SEARCH_FIELDS.contains(f)).collect(Collectors.toSet());
 
         if (!unknown.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Недопустимые значения параметра 'by': " + unknown
-                            + ". Разрешены: " + ALLOWED_SEARCH_FIELDS);
+            throw new IllegalArgumentException("Недопустимые значения параметра 'by': " + unknown + ". Разрешены: " + ALLOWED_SEARCH_FIELDS);
         }
 
         return fields;
