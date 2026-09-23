@@ -6,6 +6,7 @@ import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.user.User;
+import ru.yandex.practicum.filmorate.storage.feed.EventStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -15,11 +16,15 @@ import java.util.*;
 public class UserService {
 
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
 
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(
+            @Qualifier("userDbStorage") UserStorage userStorage,
+            @Qualifier("eventDbStorage") EventStorage eventStorage
+    ) {
         this.userStorage = userStorage;
-
+        this.eventStorage = eventStorage;
     }
 
     public List<User> findAll() {
@@ -52,6 +57,7 @@ public class UserService {
         findUserOrThrow(friendId);
 
         userStorage.addFriend(userId, friendId);
+        eventStorage.addFriendEvent(userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
@@ -59,6 +65,7 @@ public class UserService {
         findUserOrThrow(friendId);
 
         userStorage.removeFriend(userId, friendId);
+        eventStorage.removeFriendEvent(userId,friendId);
     }
 
     public List<User> getFriends(Long userId) {
