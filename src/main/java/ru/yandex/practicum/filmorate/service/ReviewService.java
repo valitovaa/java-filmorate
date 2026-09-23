@@ -53,12 +53,6 @@ public class ReviewService {
 
     public Review updateReview(UpdateReviewRequest updateReview) {
         Review review = findReviewById(updateReview.getReviewId());
-        if (updateReview.hasFilmId()) {
-            findFilmById(updateReview.getFilmId());
-        }
-        if (updateReview.hasUserId()) {
-            findUserById(updateReview.getUserId());
-        }
         ReviewMapper.updateReviewFields(review, updateReview);
 
         //Пара user_id и film_id уникальная для таблицы reviews. Проверяем наличие такой пары в другом отзыве
