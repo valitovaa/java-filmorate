@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.MpaResponse;
-import ru.yandex.practicum.filmorate.service.MpaService;
+import ru.yandex.practicum.filmorate.service.film.MpaService;
 
 import java.util.List;
 

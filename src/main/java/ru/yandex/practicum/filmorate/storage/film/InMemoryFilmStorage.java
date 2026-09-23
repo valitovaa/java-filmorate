@@ -78,7 +78,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return Optional.ofNullable(films.get(id));
     }
 
-    public List<Film> getPopularFilms(int count) {
+    public List<Film> getPopularFilms(Long count, Long genreId, Long year) {
         return films.values().stream().sorted(Comparator.comparingInt((Film film) -> likes.getOrDefault(film.getId(), Set.of()).size()).reversed()).limit(count).toList();
     }
 
@@ -91,6 +91,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> filmsByDirector(Long directorId, String sortBy) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, boolean byTitle, boolean byDirector) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

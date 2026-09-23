@@ -38,8 +38,8 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getPopularFilms(int count) {
-        return filmRepository.findPopularFilms(count);
+    public Collection<Film> getPopularFilms(Long count, Long genreId, Long year) {
+        return filmRepository.findPopularFilms(count, genreId, year);
     }
 
     @Override
@@ -59,6 +59,11 @@ public class FilmDbStorage implements FilmStorage {
 
     public Collection<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
         return filmRepository.findCommonFilmsByUsers(userId, friendId);
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, boolean byTitle, boolean byDirector) {
+        return filmRepository.searchFilms(query, byTitle, byDirector);
     }
 
     @Override

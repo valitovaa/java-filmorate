@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.repositories.film;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -7,9 +8,13 @@ import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.Director;
 import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.model.film.Genre;
 
+import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
 
@@ -23,13 +28,6 @@ public class FilmRepository extends BaseRepository<Film> {
             "VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, " +
             "duration = ?, mpa = ? WHERE id = ?";
-
-    private static final String FIND_POPULAR_QUERY = "SELECT f.* " +
-            "FROM films f " +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
-            "GROUP BY f.id " +
-            "ORDER BY COUNT(fl.user_id) DESC " +
-            "LIMIT ?";
 
     private static final String FIND_FILMS_BY_DIRECTOR_SORT_BY_LIKES = "SELECT f.*, " +
             "(SELECT COUNT(*) FROM film_likes fl WHERE fl.film_id = f.id) AS like_count " +
@@ -58,6 +56,40 @@ public class FilmRepository extends BaseRepository<Film> {
                          FROM film_likes fl
                          WHERE fl.film_id = f.id
                          ) DESC;
+            """;
+
+    private static final String FIND_MOST_POPULAR_QUERY = """
+            SELECT f.id, f.name, f.description, f.release_date,
+                   f.duration, f.mpa, COUNT(DISTINCT fl.user_id) AS likes
+            FROM films f
+            LEFT JOIN film_genres fg ON f.id = fg.film_id
+            LEFT JOIN film_likes fl ON f.id = fl.film_id
+            WHERE (? IS NULL OR fg.genre_id = ?)
+              AND (? IS NULL OR f.release_date BETWEEN ? AND ?)
+            GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa
+            ORDER BY likes DESC
+            LIMIT ?
+            """;
+
+    private static final String SEARCH_FILMS_QUERY = """
+            SELECT f.*,
+                   COUNT(fl.user_id) AS likes_count
+            FROM films f
+                     LEFT JOIN film_likes fl ON f.id = fl.film_id
+                     LEFT JOIN film_directors fd ON f.id = fd.film_id
+                     LEFT JOIN directors dir ON fd.director_id = dir.id
+            WHERE (? AND LOWER(f.name) LIKE LOWER(CONCAT('%', ?, '%')))
+               OR (? AND LOWER(dir.name) LIKE LOWER(CONCAT('%', ?, '%')))
+            GROUP BY f.id
+            ORDER BY likes_count DESC;
+            """;
+
+    private static final String FIND_GENRES_BY_FILM_IDS_QUERY = """
+            SELECT fg.film_id, g.id AS genre_id, g.name AS genre_name
+            FROM film_genres fg
+            JOIN genres g ON g.id = fg.genre_id
+            WHERE fg.film_id IN (%s)
+            ORDER BY g.id
             """;
 
     private static final String DELETE_QUERY = "DELETE FROM films WHERE id = ?";
@@ -93,6 +125,10 @@ public class FilmRepository extends BaseRepository<Film> {
                 filmIds.toArray()
         );
 
+        if (directorsByFilmId == null) {
+            return;
+        }
+
         films.forEach(f -> f.setDirectors(
                 directorsByFilmId.getOrDefault(f.getId(), List.of())
         ));
@@ -101,6 +137,7 @@ public class FilmRepository extends BaseRepository<Film> {
     public List<Film> findAll() {
         List<Film> films = findMany(FIND_ALL_QUERY);
         loadDirectorsForFilms(films);
+        fillGenres(films);
         return films;
     }
 
@@ -109,6 +146,7 @@ public class FilmRepository extends BaseRepository<Film> {
         film.ifPresent(f -> {
             List<Director> directors = filmDirectorsRepository.getDirectorsByFilm(id);
             f.setDirectors(directors);
+            fillGenres(List.of(f));
         });
         return film;
     }
@@ -146,12 +184,6 @@ public class FilmRepository extends BaseRepository<Film> {
                 .orElseThrow(() -> new NotFoundException("Фильм не найден"));
     }
 
-    public List<Film> findPopularFilms(int count) {
-        List<Film> films = findMany(FIND_POPULAR_QUERY, count);
-        loadDirectorsForFilms(films);
-        return films;
-    }
-
     public List<Film> findFilmsByDirector(Long directorId, String sortBy) {
         if (sortBy.equals("likes")) {
             return findFilmsByLikes(directorId);
@@ -166,18 +198,21 @@ public class FilmRepository extends BaseRepository<Film> {
     private List<Film> findFilmsByLikes(Long directorId) {
         List<Film> films = findMany(FIND_FILMS_BY_DIRECTOR_SORT_BY_LIKES, directorId);
         loadDirectorsForFilms(films);
+        fillGenres(films);
         return films;
     }
 
     private List<Film> findFilmsByYear(Long directorId) {
         List<Film> films = findMany(FIND_FILMS_BY_DIRECTOR_SORT_BY_YEAR, directorId);
         loadDirectorsForFilms(films);
+        fillGenres(films);
         return films;
     }
 
     public List<Film> findCommonFilmsByUsers(long userId, long friendId) {
         List<Film> films = findMany(COMMON_FILMS_BY_USERS_QUERY, userId, friendId);
         loadDirectorsForFilms(films);
+        fillGenres(films);
         return films;
     }
 
@@ -188,6 +223,22 @@ public class FilmRepository extends BaseRepository<Film> {
         String placeholders = String.join(", ", Collections.nCopies(filmIds.size(), "?"));
         List<Film> films = findMany(FIND_BY_IDS_QUERY.formatted(placeholders), filmIds.toArray());
         loadDirectorsForFilms(films);
+        fillGenres(films);
+        return films;
+    }
+
+    public List<Film> findPopularFilms(Long count, Long genreId, Long year) {
+        LocalDate from = year != null ? LocalDate.of(year.intValue(), 1, 1) : null;
+        LocalDate to = year != null ? LocalDate.of(year.intValue(), 12, 31) : null;
+        int limit = count != null ? count.intValue() : Integer.MAX_VALUE;
+
+        List<Film> films = findMany(FIND_MOST_POPULAR_QUERY,
+                genreId, genreId,
+                year, from, to,
+                limit);
+
+        loadDirectorsForFilms(films);
+        fillGenres(films);
         return films;
     }
 
@@ -195,6 +246,46 @@ public class FilmRepository extends BaseRepository<Film> {
         boolean deleted = delete(DELETE_QUERY, filmId);
         if (!deleted) {
             throw new NotFoundException("Фильм не найден");
+        }
+    }
+
+    public List<Film> searchFilms(String query, boolean byTitle, boolean byDirector) {
+        List<Film> films = findMany(SEARCH_FILMS_QUERY, byTitle, query, byDirector, query);
+        loadDirectorsForFilms(films);
+        fillGenres(films);
+        return films;
+    }
+
+    private void fillGenres(List<Film> films) {
+        if (films == null || films.isEmpty()) {
+            return;
+        }
+
+        Map<Long, Film> filmsById = new LinkedHashMap<>();
+        for (Film film : films) {
+            film.setGenres(new LinkedHashSet<>());
+            filmsById.put(film.getId(), film);
+        }
+
+        String placeholders = String.join(",", Collections.nCopies(films.size(), "?"));
+        String sql = FIND_GENRES_BY_FILM_IDS_QUERY.formatted(placeholders);
+        Object[] args = films.stream().map(Film::getId).toArray();
+
+        jdbc.query(sql, (rs, rowNum) -> {
+            long filmId = rs.getLong("film_id");
+            Genre genre = new Genre(rs.getLong("genre_id"), rs.getString("genre_name"));
+            Film film = filmsById.get(filmId);
+            if (film != null) {
+                film.getGenres().add(genre);
+            }
+            return null;
+        }, args);
+
+        for (Film film : films) {
+            Set<Genre> sorted = film.getGenres().stream()
+                    .sorted(Comparator.comparing(Genre::getId))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            film.setGenres(sorted);
         }
     }
 }

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.film;
 
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -7,50 +7,50 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
-import ru.yandex.practicum.filmorate.storage.film.FilmGenreStorage;
+import ru.yandex.practicum.filmorate.storage.feed.EventStorage;
+import ru.yandex.practicum.filmorate.storage.film.genre.FilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.film.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
+    private static final Set<String> ALLOWED_SEARCH_FIELDS = Set.of("director", "title");
+
 
     private final FilmStorage filmStorage;
     private final GenreStorage genreStorage;
     private final FilmGenreStorage filmGenreStorage;
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     public FilmService(
             @Qualifier("filmDbStorage") FilmStorage filmStorage,
             @Qualifier("genreDbStorage") GenreStorage genreStorage,
             @Qualifier("filmGenreDbStorage") FilmGenreStorage filmGenreStorage,
-            @Qualifier("userDbStorage") UserStorage userStorage
+            @Qualifier("userDbStorage") UserStorage userStorage,
+            @Qualifier("eventDbStorage") EventStorage eventStorage
     ) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
         this.filmGenreStorage = filmGenreStorage;
         this.userStorage = userStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Collection<Film> findAll() {
-        Collection<Film> films = filmStorage.findAll();
-
-        for (Film film : films) {
-            film.setGenres(filmGenreStorage.getGenres(film.getId()));
-        }
-
-        return films;
+        return filmStorage.findAll();
     }
 
     public Film findById(Long id) {
-        Film film = findFilmOrThrow(id);
-        film.setGenres(filmGenreStorage.getGenres(id));
-        return film;
+        return findFilmOrThrow(id);
     }
 
     public Film postFilm(Film film) {
@@ -85,6 +85,7 @@ public class FilmService {
         findUserOrThrow(userId);
 
         filmStorage.like(filmId, userId);
+        eventStorage.addLikeEvent(userId,filmId);
     }
 
     public void removeLike(Long filmId, Long userId) {
@@ -92,16 +93,21 @@ public class FilmService {
         findUserOrThrow(userId);
 
         filmStorage.removeLike(filmId, userId);
+        eventStorage.removeLikeEvent(userId,filmId);
     }
 
-    public Collection<Film> getPopularFilms(int count) {
-        Collection<Film> films = filmStorage.getPopularFilms(count);
-
-        for (Film film : films) {
-            film.setGenres(filmGenreStorage.getGenres(film.getId()));
+    public Collection<Film> getPopularFilms(Long count, Long genreId, Long year) {
+        if (year != null) {
+            Film film = new Film();
+            film.setReleaseDate(LocalDate.of(year.intValue(), 1, 1));
+            validateReleaseDate(film);
         }
-
-        return films;
+        if (genreId != null) {
+            Genre genre = new Genre();
+            genre.setId(genreId);
+            validateGenres(Set.of(genre));
+        }
+        return filmStorage.getPopularFilms(count, genreId, year);
     }
 
     public Collection<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
@@ -112,12 +118,24 @@ public class FilmService {
         findUserOrThrow(userId);
         findUserOrThrow(friendId);
 
-        Collection<Film> films = filmStorage.getCommonFilmsByUsers(userId, friendId);
-        for (Film film : films) {
-            film.setGenres(filmGenreStorage.getGenres(film.getId()));
+        return filmStorage.getCommonFilmsByUsers(userId, friendId);
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        if (query == null || query.isBlank()) {
+            throw new ConditionsNotMetException("Параметр 'query' не может быть пустым");
         }
 
-        return films;
+        if (by == null || by.isBlank()) {
+            throw new ConditionsNotMetException("Параметр 'by' не может быть пустым");
+        }
+
+        Set<String> searchFields = parseAndValidateSearchFields(by);
+
+        boolean byTitle = searchFields.contains("title");
+        boolean byDirector = searchFields.contains("director");
+
+        return filmStorage.searchFilms(query.trim(), byTitle, byDirector);
     }
 
     private Film findFilmOrThrow(Long id) {
@@ -195,6 +213,30 @@ public class FilmService {
         }
 
         return filmStorage.filmsByDirector(directorId, sortBy);
+    }
+
+    //валидатор поисковых строк
+    private Set<String> parseAndValidateSearchFields(String by) {
+        Set<String> fields = Arrays.stream(by.split(","))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
+
+        if (fields.isEmpty()) {
+            throw new IllegalArgumentException("Параметр 'by' не может быть пустым");
+        }
+
+        Set<String> unknown = fields.stream()
+                .filter(f -> !ALLOWED_SEARCH_FIELDS.contains(f))
+                .collect(Collectors.toSet());
+
+        if (!unknown.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Недопустимые значения параметра 'by': " + unknown
+                            + ". Разрешены: " + ALLOWED_SEARCH_FIELDS);
+        }
+
+        return fields;
     }
 
     public void deleteFilm(Long filmId) {
