@@ -29,13 +29,6 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, " +
             "duration = ?, mpa = ? WHERE id = ?";
 
-    private static final String FIND_POPULAR_QUERY = "SELECT f.* " +
-            "FROM films f " +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
-            "GROUP BY f.id " +
-            "ORDER BY COUNT(fl.user_id) DESC " +
-            "LIMIT ?";
-
     private static final String FIND_FILMS_BY_DIRECTOR_SORT_BY_LIKES = "SELECT f.*, " +
             "(SELECT COUNT(*) FROM film_likes fl WHERE fl.film_id = f.id) AS like_count " +
             "FROM films f " +
@@ -187,13 +180,6 @@ public class FilmRepository extends BaseRepository<Film> {
 
         return findById(film.getId())
                 .orElseThrow(() -> new NotFoundException("Фильм не найден"));
-    }
-
-    public List<Film> findPopularFilms(int count) {
-        List<Film> films = findMany(FIND_POPULAR_QUERY, count);
-        loadDirectorsForFilms(films);
-        fillGenres(films);
-        return films;
     }
 
     public List<Film> findFilmsByDirector(Long directorId, String sortBy) {
