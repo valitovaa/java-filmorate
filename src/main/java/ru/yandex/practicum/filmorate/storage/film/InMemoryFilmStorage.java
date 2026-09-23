@@ -72,16 +72,14 @@ public class InMemoryFilmStorage implements FilmStorage {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-
     @Override
     public Optional<Film> findFilmById(Long id) {
         return Optional.ofNullable(films.get(id));
     }
 
-    public List<Film> getPopularFilms(int count) {
+    public List<Film> getPopularFilms(Long count, Long genreId, Long year) {
         return films.values().stream().sorted(Comparator.comparingInt((Film film) -> likes.getOrDefault(film.getId(), Set.of()).size()).reversed()).limit(count).toList();
     }
-
 
     private long getNextId() {
         long currentMaxId = films.keySet().stream().mapToLong(id -> id).max().orElse(0);
