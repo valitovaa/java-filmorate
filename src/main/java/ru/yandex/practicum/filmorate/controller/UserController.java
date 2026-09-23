@@ -51,6 +51,11 @@ public class UserController {
         userService.removeFriend(id, friendId);
     }
 
+    @GetMapping("/{id}")
+    public User findUserById(@PathVariable @Positive Long id) {
+        return userService.findUserById(id);
+    }
+
     @GetMapping("/{id}/friends")
     public List<User> getUsersFriends(@PathVariable Long id) {
         return userService.getFriends(id);
@@ -71,5 +76,10 @@ public class UserController {
     @GetMapping("/{id}/feed")
     public List<Event> getFeed(@PathVariable @Positive Long id) {
         return eventService.getEvents(id);
+    }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable @Positive Long userId) {
+        userService.deleteUser(userId);
     }
 }

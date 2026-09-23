@@ -65,4 +65,9 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> searchFilms(String query, boolean byTitle, boolean byDirector) {
         return filmRepository.searchFilms(query, byTitle, byDirector);
     }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+        filmRepository.deleteFilm(filmId);
+    }
 }

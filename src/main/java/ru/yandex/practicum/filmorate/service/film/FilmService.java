@@ -238,4 +238,9 @@ public class FilmService {
 
         return fields;
     }
+
+    public void deleteFilm(Long filmId) {
+        findFilmOrThrow(filmId);
+        filmStorage.deleteFilm(filmId);
+    }
 }

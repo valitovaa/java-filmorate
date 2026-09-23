@@ -92,6 +92,8 @@ public class FilmRepository extends BaseRepository<Film> {
             ORDER BY g.id
             """;
 
+    private static final String DELETE_QUERY = "DELETE FROM films WHERE id = ?";
+
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper,
                           FilmDirectorsRepository filmDirectorsRepository) {
         super(jdbc, mapper);
@@ -238,6 +240,13 @@ public class FilmRepository extends BaseRepository<Film> {
         loadDirectorsForFilms(films);
         fillGenres(films);
         return films;
+    }
+
+    public void deleteFilm(Long filmId) {
+        boolean deleted = delete(DELETE_QUERY, filmId);
+        if (!deleted) {
+            throw new NotFoundException("Фильм не найден");
+        }
     }
 
     public List<Film> searchFilms(String query, boolean byTitle, boolean byDirector) {

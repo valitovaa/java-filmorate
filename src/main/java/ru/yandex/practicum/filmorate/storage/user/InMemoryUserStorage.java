@@ -91,6 +91,11 @@ public class InMemoryUserStorage implements UserStorage {
                 .toList();
     }
 
+    @Override
+    public void deleteUser(Long userId) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
     private long getNextId() {
         return ++currentId;
     }

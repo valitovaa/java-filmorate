@@ -48,9 +48,9 @@ public class UserService {
         return userStorage.update(user);
     }
 
-    public Optional<User> findUserById(Long id) {
-        return userStorage.findUserById(id);
-    }
+        public User findUserById(Long id) {
+            return userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        }
 
     public void addFriend(Long userId, Long friendId) {
         findUserOrThrow(userId);
@@ -86,11 +86,16 @@ public class UserService {
         userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
     }
 
-    private void validateLogin(User user) {
-        if (!StringUtils.hasText(user.getLogin())) {
-            throw new ConditionsNotMetException("Логин не может быть пустым");
+        public void deleteUser(Long id) {
+            findUserOrThrow(id);
+            userStorage.deleteUser(id);
         }
-    }
+
+        private void validateLogin(User user) {
+            if (!StringUtils.hasText(user.getLogin())) {
+                throw new ConditionsNotMetException("Логин не может быть пустым");
+            }
+        }
 
     private void validateBirthday(User user) {
         if (user.getBirthday().isAfter(LocalDate.now())) {
