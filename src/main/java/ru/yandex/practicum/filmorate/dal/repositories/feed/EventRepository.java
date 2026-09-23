@@ -29,11 +29,6 @@ public class EventRepository extends BaseRepository<Event> {
             VALUES (?, ?, ?, ?, ?)
             """;
 
-    private static final String FIND_BY_ID_QUERY = """
-            SELECT *
-            FROM feed_events
-            WHERE event_id = ?
-            """;
 
     public EventRepository(JdbcTemplate jdbc, RowMapper<Event> mapper) {
         super(jdbc, mapper);
