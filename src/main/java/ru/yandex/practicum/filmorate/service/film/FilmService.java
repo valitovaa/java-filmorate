@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.storage.feed.EventStorage;
 import ru.yandex.practicum.filmorate.storage.film.genre.FilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -30,19 +31,21 @@ public class FilmService {
     private final FilmGenreStorage filmGenreStorage;
     private final UserStorage userStorage;
     private final EventStorage eventStorage;
+    private final DirectorService directorService;
 
     public FilmService(
             @Qualifier("filmDbStorage") FilmStorage filmStorage,
             @Qualifier("genreDbStorage") GenreStorage genreStorage,
             @Qualifier("filmGenreDbStorage") FilmGenreStorage filmGenreStorage,
             @Qualifier("userDbStorage") UserStorage userStorage,
-            @Qualifier("eventDbStorage") EventStorage eventStorage
-    ) {
+            @Qualifier("eventDbStorage") EventStorage eventStorage,
+            DirectorService directorService) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
         this.filmGenreStorage = filmGenreStorage;
         this.userStorage = userStorage;
         this.eventStorage = eventStorage;
+        this.directorService = directorService;
     }
 
     public Collection<Film> findAll() {
@@ -211,6 +214,8 @@ public class FilmService {
         if (!sortBy.equals("year") && !sortBy.equals("likes")) {
             throw new ValidationException("Сортировка должна быть по лайкам либо годам");
         }
+
+        directorService.getDirectorById(directorId);
 
         return filmStorage.filmsByDirector(directorId, sortBy);
     }
