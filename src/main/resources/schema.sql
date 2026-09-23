@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS feed_events (
     event_type VARCHAR(20) NOT NULL,
     operation VARCHAR(20) NOT NULL,
     entity_id BIGINT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 
