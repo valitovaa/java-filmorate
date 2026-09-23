@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.repositories.film;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -8,8 +9,10 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.Director;
 import ru.yandex.practicum.filmorate.model.film.Film;
 
+import java.time.LocalDate;
 import java.util.*;
 
+@Slf4j
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
 
@@ -23,13 +26,6 @@ public class FilmRepository extends BaseRepository<Film> {
             "VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, " +
             "duration = ?, mpa = ? WHERE id = ?";
-
-    private static final String FIND_POPULAR_QUERY = "SELECT f.* " +
-            "FROM films f " +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
-            "GROUP BY f.id " +
-            "ORDER BY COUNT(fl.user_id) DESC " +
-            "LIMIT ?";
 
     private static final String FIND_FILMS_BY_DIRECTOR_SORT_BY_LIKES = "SELECT f.*, " +
             "(SELECT COUNT(*) FROM film_likes fl WHERE fl.film_id = f.id) AS like_count " +
@@ -58,6 +54,19 @@ public class FilmRepository extends BaseRepository<Film> {
                          FROM film_likes fl
                          WHERE fl.film_id = f.id
                          ) DESC;
+            """;
+
+    private static final String FIND_MOST_POPULAR_QUERY = """
+            SELECT f.id, f.name, f.description, f.release_date,
+                   f.duration, f.mpa, COUNT(DISTINCT fl.user_id) AS likes
+            FROM films f
+            LEFT JOIN film_genres fg ON f.id = fg.film_id
+            LEFT JOIN film_likes fl ON f.id = fl.film_id
+            WHERE (? IS NULL OR fg.genre_id = ?)
+              AND (? IS NULL OR f.release_date BETWEEN ? AND ?)
+            GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa
+            ORDER BY likes DESC
+            LIMIT ?
             """;
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper,
@@ -144,12 +153,6 @@ public class FilmRepository extends BaseRepository<Film> {
                 .orElseThrow(() -> new NotFoundException("Фильм не найден"));
     }
 
-    public List<Film> findPopularFilms(int count) {
-        List<Film> films = findMany(FIND_POPULAR_QUERY, count);
-        loadDirectorsForFilms(films);
-        return films;
-    }
-
     public List<Film> findFilmsByDirector(Long directorId, String sortBy) {
         if (sortBy.equals("likes")) {
             return findFilmsByLikes(directorId);
@@ -185,6 +188,20 @@ public class FilmRepository extends BaseRepository<Film> {
         }
         String placeholders = String.join(", ", Collections.nCopies(filmIds.size(), "?"));
         List<Film> films = findMany(FIND_BY_IDS_QUERY.formatted(placeholders), filmIds.toArray());
+        loadDirectorsForFilms(films);
+        return films;
+    }
+
+    public List<Film> findPopularFilms(Long count, Long genreId, Long year) {
+        LocalDate from = year != null ? LocalDate.of(year.intValue(), 1, 1) : null;
+        LocalDate to = year != null ? LocalDate.of(year.intValue(), 12, 31) : null;
+        int limit = count != null ? count.intValue() : Integer.MAX_VALUE;
+
+        List<Film> films = findMany(FIND_MOST_POPULAR_QUERY,
+                genreId, genreId,
+                year, from, to,
+                limit);
+
         loadDirectorsForFilms(films);
         return films;
     }

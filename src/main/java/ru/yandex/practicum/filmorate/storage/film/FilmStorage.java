@@ -17,7 +17,7 @@ public interface FilmStorage {
 
     Optional<Film> findFilmById(Long id);
 
-    Collection<Film> getPopularFilms(int count);
+    Collection<Film> getPopularFilms(Long count, Long genreId, Long year);
 
     void like(Long filmId, Long userId);
 
@@ -25,5 +25,5 @@ public interface FilmStorage {
 
     List<Film> filmsByDirector(Long directorId, String sortBy);
 
-    Collection<Film> getCommonFilmsByUsers(Long userId,Long friendId);
+    Collection<Film> getCommonFilmsByUsers(Long userId, Long friendId);
 }
