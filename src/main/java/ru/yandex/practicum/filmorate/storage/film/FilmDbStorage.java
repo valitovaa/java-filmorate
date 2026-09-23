@@ -60,4 +60,9 @@ public class FilmDbStorage implements FilmStorage {
     public Collection<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
         return filmRepository.findCommonFilmsByUsers(userId, friendId);
     }
+
+    @Override
+    public List<Film> searchFilms(String query, boolean byTitle, boolean byDirector) {
+        return filmRepository.searchFilms(query, byTitle, byDirector);
+    }
 }

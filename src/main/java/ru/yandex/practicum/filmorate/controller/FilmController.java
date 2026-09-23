@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -70,9 +71,14 @@ public class FilmController {
         return filmService.getFilmsByDirector(directorId, sortBy);
     }
 
-
     @GetMapping("/common")
     public Collection<Film> getCommonFilmsByUsers(@RequestParam Long userId, @RequestParam Long friendId) {
         return filmService.getCommonFilmsByUsers(userId, friendId);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(@RequestParam String query,
+                                  @RequestParam String by) {
+        return filmService.searchFilms(query, by);
     }
 }

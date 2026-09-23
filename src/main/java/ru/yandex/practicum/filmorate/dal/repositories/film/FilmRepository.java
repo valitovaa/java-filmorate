@@ -8,9 +8,11 @@ import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.Director;
 import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.model.film.Genre;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -69,6 +71,27 @@ public class FilmRepository extends BaseRepository<Film> {
             LIMIT ?
             """;
 
+    private static final String SEARCH_FILMS_QUERY = """
+            SELECT f.*,
+                   COUNT(fl.user_id) AS likes_count
+            FROM films f
+                     LEFT JOIN film_likes fl ON f.id = fl.film_id
+                     LEFT JOIN film_directors fd ON f.id = fd.film_id
+                     LEFT JOIN directors dir ON fd.director_id = dir.id
+            WHERE (? AND LOWER(f.name) LIKE LOWER(CONCAT('%', ?, '%')))
+               OR (? AND LOWER(dir.name) LIKE LOWER(CONCAT('%', ?, '%')))
+            GROUP BY f.id
+            ORDER BY likes_count DESC;
+            """;
+
+    private static final String FIND_GENRES_BY_FILM_IDS_QUERY = """
+            SELECT fg.film_id, g.id AS genre_id, g.name AS genre_name
+            FROM film_genres fg
+            JOIN genres g ON g.id = fg.genre_id
+            WHERE fg.film_id IN (%s)
+            ORDER BY g.id
+            """;
+
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper,
                           FilmDirectorsRepository filmDirectorsRepository) {
         super(jdbc, mapper);
@@ -100,6 +123,10 @@ public class FilmRepository extends BaseRepository<Film> {
                 filmIds.toArray()
         );
 
+        if (directorsByFilmId == null) {
+            return;
+        }
+
         films.forEach(f -> f.setDirectors(
                 directorsByFilmId.getOrDefault(f.getId(), List.of())
         ));
@@ -108,6 +135,7 @@ public class FilmRepository extends BaseRepository<Film> {
     public List<Film> findAll() {
         List<Film> films = findMany(FIND_ALL_QUERY);
         loadDirectorsForFilms(films);
+        fillGenres(films);
         return films;
     }
 
@@ -116,6 +144,7 @@ public class FilmRepository extends BaseRepository<Film> {
         film.ifPresent(f -> {
             List<Director> directors = filmDirectorsRepository.getDirectorsByFilm(id);
             f.setDirectors(directors);
+            fillGenres(List.of(f));
         });
         return film;
     }
@@ -167,18 +196,21 @@ public class FilmRepository extends BaseRepository<Film> {
     private List<Film> findFilmsByLikes(Long directorId) {
         List<Film> films = findMany(FIND_FILMS_BY_DIRECTOR_SORT_BY_LIKES, directorId);
         loadDirectorsForFilms(films);
+        fillGenres(films);
         return films;
     }
 
     private List<Film> findFilmsByYear(Long directorId) {
         List<Film> films = findMany(FIND_FILMS_BY_DIRECTOR_SORT_BY_YEAR, directorId);
         loadDirectorsForFilms(films);
+        fillGenres(films);
         return films;
     }
 
     public List<Film> findCommonFilmsByUsers(long userId, long friendId) {
         List<Film> films = findMany(COMMON_FILMS_BY_USERS_QUERY, userId, friendId);
         loadDirectorsForFilms(films);
+        fillGenres(films);
         return films;
     }
 
@@ -189,6 +221,7 @@ public class FilmRepository extends BaseRepository<Film> {
         String placeholders = String.join(", ", Collections.nCopies(filmIds.size(), "?"));
         List<Film> films = findMany(FIND_BY_IDS_QUERY.formatted(placeholders), filmIds.toArray());
         loadDirectorsForFilms(films);
+        fillGenres(films);
         return films;
     }
 
@@ -203,6 +236,47 @@ public class FilmRepository extends BaseRepository<Film> {
                 limit);
 
         loadDirectorsForFilms(films);
+        fillGenres(films);
         return films;
+    }
+
+    public List<Film> searchFilms(String query, boolean byTitle, boolean byDirector) {
+        List<Film> films = findMany(SEARCH_FILMS_QUERY, byTitle, query, byDirector, query);
+        loadDirectorsForFilms(films);
+        fillGenres(films);
+        return films;
+    }
+
+    private void fillGenres(List<Film> films) {
+        if (films == null || films.isEmpty()) {
+            return;
+        }
+
+        Map<Long, Film> filmsById = new LinkedHashMap<>();
+        for (Film film : films) {
+            film.setGenres(new LinkedHashSet<>());
+            filmsById.put(film.getId(), film);
+        }
+
+        String placeholders = String.join(",", Collections.nCopies(films.size(), "?"));
+        String sql = FIND_GENRES_BY_FILM_IDS_QUERY.formatted(placeholders);
+        Object[] args = films.stream().map(Film::getId).toArray();
+
+        jdbc.query(sql, (rs, rowNum) -> {
+            long filmId = rs.getLong("film_id");
+            Genre genre = new Genre(rs.getLong("genre_id"), rs.getString("genre_name"));
+            Film film = filmsById.get(filmId);
+            if (film != null) {
+                film.getGenres().add(genre);
+            }
+            return null;
+        }, args);
+
+        for (Film film : films) {
+            Set<Genre> sorted = film.getGenres().stream()
+                    .sorted(Comparator.comparing(Genre::getId))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            film.setGenres(sorted);
+        }
     }
 }
