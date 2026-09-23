@@ -13,12 +13,16 @@ import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
+    private static final Set<String> ALLOWED_SEARCH_FIELDS = Set.of("director", "title");
+
 
     private final FilmStorage filmStorage;
     private final GenreStorage genreStorage;
@@ -38,19 +42,11 @@ public class FilmService {
     }
 
     public Collection<Film> findAll() {
-        Collection<Film> films = filmStorage.findAll();
-
-        for (Film film : films) {
-            film.setGenres(filmGenreStorage.getGenres(film.getId()));
-        }
-
-        return films;
+        return filmStorage.findAll();
     }
 
     public Film findById(Long id) {
-        Film film = findFilmOrThrow(id);
-        film.setGenres(filmGenreStorage.getGenres(id));
-        return film;
+        return findFilmOrThrow(id);
     }
 
     public Film postFilm(Film film) {
@@ -116,12 +112,24 @@ public class FilmService {
         findUserOrThrow(userId);
         findUserOrThrow(friendId);
 
-        Collection<Film> films = filmStorage.getCommonFilmsByUsers(userId, friendId);
-        for (Film film : films) {
-            film.setGenres(filmGenreStorage.getGenres(film.getId()));
+        return filmStorage.getCommonFilmsByUsers(userId, friendId);
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        if (query == null || query.isBlank()) {
+            throw new ConditionsNotMetException("Параметр 'query' не может быть пустым");
         }
 
-        return films;
+        if (by == null || by.isBlank()) {
+            throw new ConditionsNotMetException("Параметр 'by' не может быть пустым");
+        }
+
+        Set<String> searchFields = parseAndValidateSearchFields(by);
+
+        boolean byTitle = searchFields.contains("title");
+        boolean byDirector = searchFields.contains("director");
+
+        return filmStorage.searchFilms(query.trim(), byTitle, byDirector);
     }
 
     private Film findFilmOrThrow(Long id) {
@@ -199,5 +207,29 @@ public class FilmService {
         }
 
         return filmStorage.filmsByDirector(directorId, sortBy);
+    }
+
+    //валидатор поисковых строк
+    private Set<String> parseAndValidateSearchFields(String by) {
+        Set<String> fields = Arrays.stream(by.split(","))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
+
+        if (fields.isEmpty()) {
+            throw new IllegalArgumentException("Параметр 'by' не может быть пустым");
+        }
+
+        Set<String> unknown = fields.stream()
+                .filter(f -> !ALLOWED_SEARCH_FIELDS.contains(f))
+                .collect(Collectors.toSet());
+
+        if (!unknown.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Недопустимые значения параметра 'by': " + unknown
+                            + ". Разрешены: " + ALLOWED_SEARCH_FIELDS);
+        }
+
+        return fields;
     }
 }
