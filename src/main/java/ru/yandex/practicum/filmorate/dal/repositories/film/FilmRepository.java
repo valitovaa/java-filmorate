@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.repositories.film;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -9,9 +10,11 @@ import ru.yandex.practicum.filmorate.model.film.Director;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
 
@@ -60,6 +63,19 @@ public class FilmRepository extends BaseRepository<Film> {
                          FROM film_likes fl
                          WHERE fl.film_id = f.id
                          ) DESC;
+            """;
+
+    private static final String FIND_MOST_POPULAR_QUERY = """
+            SELECT f.id, f.name, f.description, f.release_date,
+                   f.duration, f.mpa, COUNT(DISTINCT fl.user_id) AS likes
+            FROM films f
+            LEFT JOIN film_genres fg ON f.id = fg.film_id
+            LEFT JOIN film_likes fl ON f.id = fl.film_id
+            WHERE (? IS NULL OR fg.genre_id = ?)
+              AND (? IS NULL OR f.release_date BETWEEN ? AND ?)
+            GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa
+            ORDER BY likes DESC
+            LIMIT ?
             """;
 
     private static final String SEARCH_FILMS_QUERY = """
@@ -218,6 +234,21 @@ public class FilmRepository extends BaseRepository<Film> {
         }
         String placeholders = String.join(", ", Collections.nCopies(filmIds.size(), "?"));
         List<Film> films = findMany(FIND_BY_IDS_QUERY.formatted(placeholders), filmIds.toArray());
+        loadDirectorsForFilms(films);
+        fillGenres(films);
+        return films;
+    }
+
+    public List<Film> findPopularFilms(Long count, Long genreId, Long year) {
+        LocalDate from = year != null ? LocalDate.of(year.intValue(), 1, 1) : null;
+        LocalDate to = year != null ? LocalDate.of(year.intValue(), 12, 31) : null;
+        int limit = count != null ? count.intValue() : Integer.MAX_VALUE;
+
+        List<Film> films = findMany(FIND_MOST_POPULAR_QUERY,
+                genreId, genreId,
+                year, from, to,
+                limit);
+
         loadDirectorsForFilms(films);
         fillGenres(films);
         return films;
