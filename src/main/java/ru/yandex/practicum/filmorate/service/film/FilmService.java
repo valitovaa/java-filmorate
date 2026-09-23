@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.film;
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.repositories.film.DirectorRepository;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.film.Film;
@@ -30,19 +31,22 @@ public class FilmService {
     private final FilmGenreStorage filmGenreStorage;
     private final UserStorage userStorage;
     private final EventStorage eventStorage;
+    private final DirectorRepository directorRepository;
 
     public FilmService(
             @Qualifier("filmDbStorage") FilmStorage filmStorage,
             @Qualifier("genreDbStorage") GenreStorage genreStorage,
             @Qualifier("filmGenreDbStorage") FilmGenreStorage filmGenreStorage,
             @Qualifier("userDbStorage") UserStorage userStorage,
-            @Qualifier("eventDbStorage") EventStorage eventStorage
+            @Qualifier("eventDbStorage") EventStorage eventStorage,
+            DirectorRepository directorRepository
     ) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
         this.filmGenreStorage = filmGenreStorage;
         this.userStorage = userStorage;
         this.eventStorage = eventStorage;
+        this.directorRepository = directorRepository;
     }
 
     public Collection<Film> findAll() {
@@ -211,6 +215,11 @@ public class FilmService {
         if (!sortBy.equals("year") && !sortBy.equals("likes")) {
             throw new ValidationException("Сортировка должна быть по лайкам либо годам");
         }
+
+        directorRepository.getDirectorById(directorId)
+                .orElseThrow(() -> new NotFoundException(
+                        "Режиссёр с id = " + directorId + " не найден"
+                ));
 
         return filmStorage.filmsByDirector(directorId, sortBy);
     }
