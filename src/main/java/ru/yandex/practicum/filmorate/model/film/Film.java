@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model.film;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,7 +28,7 @@ public class Film {
     @NotNull(message = "Дата релиза должна быть указана")
     LocalDate releaseDate;
 
-    @NotNull(message = "Продолжительность должна быть указана")
+    @PositiveOrZero(message = "Продолжительность не может быть отрицательной")
     int duration;
 
     Set<Genre> genres;

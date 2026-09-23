@@ -35,7 +35,16 @@ public class    DirectorRepository extends BaseRepository<Director> {
             throw new ValidationException("Id должен быть указан");
         }
 
-        update(UPDATE_QUERY, director.getName(), director.getId());
+        int rowsUpdated = jdbc.update(
+                UPDATE_QUERY,
+                director.getName(),
+                director.getId()
+        );
+
+        if (rowsUpdated == 0) {
+            throw new NotFoundException("Режиссёр не найден");
+        }
+
         return findOne(FIND_BY_ID_QUERY, director.getId())
                 .orElseThrow(() -> new NotFoundException("Режиссёр не найден"));
     }

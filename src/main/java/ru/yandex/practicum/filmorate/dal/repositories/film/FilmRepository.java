@@ -72,17 +72,21 @@ public class FilmRepository extends BaseRepository<Film> {
             """;
 
     private static final String SEARCH_FILMS_QUERY = """
-            SELECT f.*,
-                   COUNT(fl.user_id) AS likes_count
-            FROM films f
-                     LEFT JOIN film_likes fl ON f.id = fl.film_id
-                     LEFT JOIN film_directors fd ON f.id = fd.film_id
-                     LEFT JOIN directors dir ON fd.director_id = dir.id
-            WHERE (? AND LOWER(f.name) LIKE LOWER(CONCAT('%', ?, '%')))
-               OR (? AND LOWER(dir.name) LIKE LOWER(CONCAT('%', ?, '%')))
-            GROUP BY f.id
-            ORDER BY likes_count DESC;
-            """;
+        SELECT f.*,
+               COUNT(DISTINCT fl.user_id) AS likes_count
+        FROM films f
+        LEFT JOIN film_likes fl ON f.id = fl.film_id
+        WHERE (? AND LOWER(f.name) LIKE LOWER(CONCAT('%', ?, '%')))
+           OR (? AND EXISTS (
+                SELECT 1
+                FROM film_directors fd
+                JOIN directors d ON fd.director_id = d.id
+                WHERE fd.film_id = f.id
+                  AND LOWER(d.name) LIKE LOWER(CONCAT('%', ?, '%'))
+           ))
+        GROUP BY f.id
+        ORDER BY likes_count DESC
+        """;
 
     private static final String FIND_GENRES_BY_FILM_IDS_QUERY = """
             SELECT fg.film_id, g.id AS genre_id, g.name AS genre_name
