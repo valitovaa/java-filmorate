@@ -62,4 +62,9 @@ public class UserDbStorage implements UserStorage {
     public List<User> getCommonFriends(Long userId, Long otherUserId) {
         return friendshipRepository.getCommonFriends(userId, otherUserId);
     }
+
+    @Override
+    public void deleteUser(Long userId) {
+        userRepository.deleteUser(userId);
+    }
 }

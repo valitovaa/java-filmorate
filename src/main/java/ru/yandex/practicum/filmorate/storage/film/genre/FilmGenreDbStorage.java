@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage.film.genre;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -26,5 +26,10 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
     @Override
     public void deleteGenres(Long filmId) {
         filmGenreRepository.deleteGenres(filmId);
+    }
+
+    @Override
+    public void addGenres(Long filmId, Set<Genre> genres) {
+        filmGenreRepository.addGenres(filmId, genres);
     }
 }

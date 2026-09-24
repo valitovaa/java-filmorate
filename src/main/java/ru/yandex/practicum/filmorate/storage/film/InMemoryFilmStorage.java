@@ -16,8 +16,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Set<Long>> likes = new HashMap<>();
 
     @Override
-    public Collection<Film> findAll() {
-        return films.values();
+    public List<Film> findAll() {
+        return new ArrayList<>(films.values());
     }
 
     @Override
@@ -67,13 +67,18 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
     }
 
+    @Override
+    public List<Film> getCommonFilmsByUsers(Long userId, Long friendId) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
 
     @Override
     public Optional<Film> findFilmById(Long id) {
         return Optional.ofNullable(films.get(id));
     }
 
-    public Collection<Film> getPopularFilms(int count) {
+    public List<Film> getPopularFilms(Long count, Long genreId, Long year) {
         return films.values().stream().sorted(Comparator.comparingInt((Film film) -> likes.getOrDefault(film.getId(), Set.of()).size()).reversed()).limit(count).toList();
     }
 
@@ -84,4 +89,18 @@ public class InMemoryFilmStorage implements FilmStorage {
         return ++currentMaxId;
     }
 
+    @Override
+    public List<Film> filmsByDirector(Long directorId, String sortBy) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, boolean byTitle, boolean byDirector) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
 }

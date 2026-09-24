@@ -1,3 +1,9 @@
+logging:
+  level:
+    root: INFO
+    org.zalando.logbook: INFO
+    org.springframework.web: DEBUG
+
 spring:
   sql:
     init:

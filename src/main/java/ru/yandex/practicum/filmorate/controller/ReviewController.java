@@ -1,0 +1,106 @@
+package ru.yandex.practicum.filmorate.controller;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.review.NewReviewRequest;
+import ru.yandex.practicum.filmorate.dto.review.UpdateReviewRequest;
+import ru.yandex.practicum.filmorate.model.film.Review;
+import ru.yandex.practicum.filmorate.service.ReviewService;
+
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/reviews")
+@RequiredArgsConstructor
+@Validated
+public class ReviewController {
+
+    private final ReviewService reviewService;
+
+    @PostMapping
+    public Review addNewReview(@Valid @RequestBody NewReviewRequest review) {
+        return reviewService.postReview(review);
+    }
+
+    @PutMapping
+    public Review updateReview(@Valid @RequestBody UpdateReviewRequest review) {
+        return reviewService.updateReview(review);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteReview(
+            @Min(value = 1, message = "Id должно быть числом положительным")
+            @PathVariable Long id) {
+
+        reviewService.deleteReview(id);
+    }
+
+    @GetMapping("/{id}")
+    public Review getReviewById(
+            @Min(value = 1, message = "Id должно быть числом положительным")
+            @PathVariable Long id) {
+
+        return reviewService.getReviewById(id);
+    }
+
+    @GetMapping
+    public List<Review> getAllReviewsByFilmId(
+            @RequestParam(required = false)
+            Long filmId,
+
+            @Min(value = 0, message = "Количество отзывов должно быть числом положительным")
+            @RequestParam(defaultValue = "10")
+            int count
+    ) {
+        return reviewService.getAllReviewsByFilmId(filmId, count);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public Review addLikeReview(
+            @Min(value = 1, message = "Id должно быть числом положительным")
+            @PathVariable Long id,
+
+            @Min(value = 1, message = "UserId должно быть числом положительным")
+            @PathVariable Long userId) {
+
+        return reviewService.addLikeReview(id, userId);
+    }
+
+    @PutMapping("/{id}/dislike/{userId}")
+    public Review addDislikeReview(
+            @Min(value = 1, message = "Id должно быть числом положительным")
+            @PathVariable Long id,
+
+            @Min(value = 1, message = "UserId должно быть числом положительным")
+            @PathVariable Long userId) {
+
+        return reviewService.addDislikeReview(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Review deleteLikeReview(
+            @Min(value = 1, message = "Id должно быть числом положительным")
+            @PathVariable Long id,
+
+            @Min(value = 1, message = "UserId должно быть числом положительным")
+            @PathVariable Long userId) {
+
+        return reviewService.deleteLikeReview(id, userId);
+    }
+
+    @DeleteMapping("/{id}/dislike/{userId}")
+    public Review deleteDislikeReview(
+            @Min(value = 1, message = "Id должно быть числом положительным")
+            @PathVariable Long id,
+
+            @Min(value = 1, message = "UserId должно быть числом положительным")
+            @PathVariable Long userId) {
+
+        return reviewService.deleteDislikeReview(id, userId);
+    }
+}

@@ -1,18 +1,22 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.film.Film;
-import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
+@Validated
 public class FilmController {
 
     private final FilmService filmService;
@@ -48,9 +52,38 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-        return filmService.getPopularFilms(count);
+    public Collection<Film> getPopularFilms(
+            @Positive(message = "Количество фильмов должно быть не отрицательным числом")
+            @RequestParam(required = false)
+            Long count,
+
+            @Positive(message = "Id жанра должно быть числом положительным")
+            @RequestParam(required = false)
+            Long genreId,
+
+            @RequestParam(required = false)
+            Long year) {
+        return filmService.getPopularFilms(count, genreId, year);
     }
 
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getFilmsByDirector(@PathVariable Long directorId, @RequestParam String sortBy) {
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
 
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilmsByUsers(@RequestParam Long userId, @RequestParam Long friendId) {
+        return filmService.getCommonFilmsByUsers(userId, friendId);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public void deleteFilm(@PathVariable @Positive Long filmId) {
+        filmService.deleteFilm(filmId);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(@RequestParam String query,
+                                  @RequestParam String by) {
+        return filmService.searchFilms(query, by);
+    }
 }

@@ -6,6 +6,7 @@ import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.user.User;
+import ru.yandex.practicum.filmorate.storage.feed.EventStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -15,9 +16,15 @@ import java.util.*;
 public class UserService {
 
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+
+    public UserService(
+            @Qualifier("userDbStorage") UserStorage userStorage,
+            @Qualifier("eventDbStorage") EventStorage eventStorage
+    ) {
         this.userStorage = userStorage;
+        this.eventStorage = eventStorage;
     }
 
     public List<User> findAll() {
@@ -41,15 +48,16 @@ public class UserService {
         return userStorage.update(user);
     }
 
-    public Optional<User> findUserById(Long id) {
-        return userStorage.findUserById(id);
-    }
+        public User findUserById(Long id) {
+            return userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        }
 
     public void addFriend(Long userId, Long friendId) {
         findUserOrThrow(userId);
         findUserOrThrow(friendId);
 
         userStorage.addFriend(userId, friendId);
+        eventStorage.addFriendEvent(userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
@@ -57,6 +65,7 @@ public class UserService {
         findUserOrThrow(friendId);
 
         userStorage.removeFriend(userId, friendId);
+        eventStorage.removeFriendEvent(userId,friendId);
     }
 
     public List<User> getFriends(Long userId) {
@@ -77,15 +86,21 @@ public class UserService {
         userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
     }
 
-    private void validateLogin(User user) {
-        if (!StringUtils.hasText(user.getLogin())) {
-            throw new ConditionsNotMetException("Логин не может быть пустым");
+        public void deleteUser(Long id) {
+            findUserOrThrow(id);
+            userStorage.deleteUser(id);
         }
-    }
+
+        private void validateLogin(User user) {
+            if (!StringUtils.hasText(user.getLogin())) {
+                throw new ConditionsNotMetException("Логин не может быть пустым");
+            }
+        }
 
     private void validateBirthday(User user) {
         if (user.getBirthday().isAfter(LocalDate.now())) {
             throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
         }
     }
+
 }
