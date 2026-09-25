@@ -29,12 +29,20 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, " +
             "duration = ?, mpa = ? WHERE id = ?";
 
-    private static final String FIND_FILMS_BY_DIRECTOR_SORT_BY_LIKES = "SELECT f.*, " +
-            "(SELECT COUNT(*) FROM film_likes fl WHERE fl.film_id = f.id) AS like_count " +
+    private static final String FIND_FILMS_BY_DIRECTOR_SORT_BY_RATES = "SELECT f.*, " +
+            "(SELECT COALESCE(ROUND(AVG(fl.score), 1), 0) FROM film_likes fl WHERE fl.film_id = f.id) AS avg_score " +
             "FROM films f " +
             "JOIN film_directors fd ON f.id = fd.film_id " +
             "WHERE fd.director_id = ? " +
-            "ORDER BY like_count DESC, f.release_date DESC";
+            "ORDER BY avg_score DESC, f.release_date DESC";
+
+    private static final String FIND_FILMS_BY_DIRECTOR_SORT_BY_LIKES =
+            "SELECT f.*, " +
+                    "(SELECT COUNT(*) FROM film_likes fl WHERE fl.film_id = f.id) AS like_count " +
+                    "FROM films f " +
+                    "JOIN film_directors fd ON f.id = fd.film_id " +
+                    "WHERE fd.director_id = ? " +
+                    "ORDER BY like_count DESC, f.release_date DESC";
 
     private static final String FIND_FILMS_BY_DIRECTOR_SORT_BY_YEAR = "SELECT f.* " +
             "FROM films f " +
@@ -60,33 +68,35 @@ public class FilmRepository extends BaseRepository<Film> {
 
     private static final String FIND_MOST_POPULAR_QUERY = """
             SELECT f.id, f.name, f.description, f.release_date,
-                   f.duration, f.mpa, COUNT(DISTINCT fl.user_id) AS likes
+                   f.duration, f.mpa, COALESCE(ROUND(AVG(fl.score), 1), 0) AS avg_score,
+                   COUNT(DISTINCT fl.user_id) AS likes
             FROM films f
             LEFT JOIN film_genres fg ON f.id = fg.film_id
             LEFT JOIN film_likes fl ON f.id = fl.film_id
             WHERE (? IS NULL OR fg.genre_id = ?)
               AND (? IS NULL OR f.release_date BETWEEN ? AND ?)
             GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa
-            ORDER BY likes DESC
+            ORDER BY avg_score DESC, likes DESC
             LIMIT ?
             """;
 
     private static final String SEARCH_FILMS_QUERY = """
-        SELECT f.*,
-               COUNT(DISTINCT fl.user_id) AS likes_count
-        FROM films f
-        LEFT JOIN film_likes fl ON f.id = fl.film_id
-        WHERE (? AND LOWER(f.name) LIKE LOWER(CONCAT('%', ?, '%')))
-           OR (? AND EXISTS (
-                SELECT 1
-                FROM film_directors fd
-                JOIN directors d ON fd.director_id = d.id
-                WHERE fd.film_id = f.id
-                  AND LOWER(d.name) LIKE LOWER(CONCAT('%', ?, '%'))
-           ))
-        GROUP BY f.id
-        ORDER BY likes_count DESC
-        """;
+            SELECT f.*,
+                   COALESCE(ROUND(AVG(fl.score), 1), 0) AS avg_score,
+                   COUNT(DISTINCT fl.user_id) AS likes_count
+            FROM films f
+            LEFT JOIN film_likes fl ON f.id = fl.film_id
+            WHERE (? AND LOWER(f.name) LIKE LOWER(CONCAT('%', ?, '%')))
+               OR (? AND EXISTS (
+                    SELECT 1
+                    FROM film_directors fd
+                    JOIN directors d ON fd.director_id = d.id
+                    WHERE fd.film_id = f.id
+                      AND LOWER(d.name) LIKE LOWER(CONCAT('%', ?, '%'))
+               ))
+            GROUP BY f.id
+            ORDER BY avg_score DESC, likes_count DESC
+            """;
 
     private static final String FIND_GENRES_BY_FILM_IDS_QUERY = """
             SELECT fg.film_id, g.id AS genre_id, g.name AS genre_name
@@ -97,6 +107,12 @@ public class FilmRepository extends BaseRepository<Film> {
             """;
 
     private static final String DELETE_QUERY = "DELETE FROM films WHERE id = ?";
+
+    private static final String FIND_RATE_BY_FILM_IDS_QUERY =
+            "SELECT f.id film_id, AVG(fl.score) avg_score FROM films f " +
+                    "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
+                    "WHERE film_id IN (%s) " +
+                    "GROUP BY film_id ";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper,
                           FilmDirectorsRepository filmDirectorsRepository) {
@@ -142,6 +158,7 @@ public class FilmRepository extends BaseRepository<Film> {
         List<Film> films = findMany(FIND_ALL_QUERY);
         loadDirectorsForFilms(films);
         fillGenres(films);
+        fillRate(films);
         return films;
     }
 
@@ -151,6 +168,7 @@ public class FilmRepository extends BaseRepository<Film> {
             List<Director> directors = filmDirectorsRepository.getDirectorsByFilm(id);
             f.setDirectors(directors);
             fillGenres(List.of(f));
+            fillRate(List.of(f));
         });
         return film;
     }
@@ -189,20 +207,21 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public List<Film> findFilmsByDirector(Long directorId, String sortBy) {
-        if (sortBy.equals("likes")) {
-            return findFilmsByLikes(directorId);
-        } else if (sortBy.equals("year")) {
-            return findFilmsByYear(directorId);
-        }
-        throw new IllegalArgumentException(
-                "Неподдерживаемый тип сортировки: " + sortBy + ". Допустимые значения: 'likes', 'year'"
-        );
+        return switch (sortBy) {
+            case "likes" -> findFilmsByLikes(directorId);
+            case "year" -> findFilmsByYear(directorId);
+            case "rate" -> findFilmsByRate(directorId);
+            default -> throw new IllegalArgumentException(
+                    "Неподдерживаемый тип сортировки: " + sortBy + ". Допустимые значения: 'likes', 'year', 'rate'"
+            );
+        };
     }
 
     private List<Film> findFilmsByLikes(Long directorId) {
         List<Film> films = findMany(FIND_FILMS_BY_DIRECTOR_SORT_BY_LIKES, directorId);
         loadDirectorsForFilms(films);
         fillGenres(films);
+        fillRate(films);
         return films;
     }
 
@@ -210,6 +229,15 @@ public class FilmRepository extends BaseRepository<Film> {
         List<Film> films = findMany(FIND_FILMS_BY_DIRECTOR_SORT_BY_YEAR, directorId);
         loadDirectorsForFilms(films);
         fillGenres(films);
+        fillRate(films);
+        return films;
+    }
+
+    private List<Film> findFilmsByRate(Long directorId) {
+        List<Film> films = findMany(FIND_FILMS_BY_DIRECTOR_SORT_BY_RATES, directorId);
+        loadDirectorsForFilms(films);
+        fillGenres(films);
+        fillRate(films);
         return films;
     }
 
@@ -217,6 +245,7 @@ public class FilmRepository extends BaseRepository<Film> {
         List<Film> films = findMany(COMMON_FILMS_BY_USERS_QUERY, userId, friendId);
         loadDirectorsForFilms(films);
         fillGenres(films);
+        fillRate(films);
         return films;
     }
 
@@ -228,6 +257,7 @@ public class FilmRepository extends BaseRepository<Film> {
         List<Film> films = findMany(FIND_BY_IDS_QUERY.formatted(placeholders), filmIds.toArray());
         loadDirectorsForFilms(films);
         fillGenres(films);
+        fillRate(films);
         return films;
     }
 
@@ -243,6 +273,7 @@ public class FilmRepository extends BaseRepository<Film> {
 
         loadDirectorsForFilms(films);
         fillGenres(films);
+        fillRate(films);
         return films;
     }
 
@@ -257,6 +288,7 @@ public class FilmRepository extends BaseRepository<Film> {
         List<Film> films = findMany(SEARCH_FILMS_QUERY, byTitle, query, byDirector, query);
         loadDirectorsForFilms(films);
         fillGenres(films);
+        fillRate(films);
         return films;
     }
 
@@ -291,5 +323,29 @@ public class FilmRepository extends BaseRepository<Film> {
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             film.setGenres(sorted);
         }
+    }
+
+    private void fillRate(List<Film> films) {
+        if (films == null || films.isEmpty()) {
+            return;
+        }
+
+        String placeholders = String.join(",", Collections.nCopies(films.size(), "?"));
+        String sql = FIND_RATE_BY_FILM_IDS_QUERY.formatted(placeholders);
+        Object[] args = films.stream().map(Film::getId).toArray();
+
+        Map<Long, Film> filmsById = new LinkedHashMap<>();
+        for (Film film : films) {
+            filmsById.put(film.getId(), film);
+        }
+
+        jdbc.query(sql, (rs, rowNum) -> {
+            long filmId = rs.getLong("film_id");
+            Film film = filmsById.get(filmId);
+            if (film != null) {
+                film.setRate(rs.getFloat("avg_score"));
+            }
+            return null;
+        }, args);
     }
 }

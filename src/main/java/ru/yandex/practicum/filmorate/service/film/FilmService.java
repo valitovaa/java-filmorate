@@ -133,6 +133,13 @@ public class FilmService {
         return filmStorage.searchFilms(query.trim(), byTitle, byDirector);
     }
 
+    public void addMark(Long filmId, Long userId, float score) {
+        findFilmOrThrow(filmId);
+        findUserOrThrow(userId);
+
+        filmStorage.addMark(filmId, userId, score);
+    }
+
     private Film findFilmOrThrow(Long id) {
         return filmStorage.findFilmById(id).orElseThrow(() -> new NotFoundException("Фильм с id = " + id + " не найден"));
     }
@@ -172,7 +179,6 @@ public class FilmService {
         }
     }
 
-
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
         if (directorId == null) {
             throw new ValidationException("Id должен быть указан");
@@ -182,8 +188,8 @@ public class FilmService {
             throw new ValidationException("Сортировка должна быть указана");
         }
 
-        if (!sortBy.equals("year") && !sortBy.equals("likes")) {
-            throw new ValidationException("Сортировка должна быть по лайкам либо годам");
+        if (!sortBy.equals("year") && !sortBy.equals("likes") && !sortBy.equals("rate")) {
+            throw new ValidationException("Сортировка должна быть по лайкам, годам или оценкам");
         }
 
         directorService.getDirectorById(directorId);

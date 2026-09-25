@@ -36,4 +36,6 @@ public class Film {
     MPA mpa;
 
     List<Director> directors = new ArrayList<>();
+
+    private float rate;
 }

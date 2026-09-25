@@ -70,4 +70,9 @@ public class FilmDbStorage implements FilmStorage {
     public void deleteFilm(Long filmId) {
         filmRepository.deleteFilm(filmId);
     }
+
+    @Override
+    public void addMark(Long filmId, Long userId, float score) {
+        likeRepository.addMark(filmId, userId, score);
+    }
 }

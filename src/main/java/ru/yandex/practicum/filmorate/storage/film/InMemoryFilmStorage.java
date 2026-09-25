@@ -103,4 +103,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void deleteFilm(Long filmId) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
+
+    @Override
+    public void addMark(Long id, Long userId, float score) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
 }
