@@ -41,6 +41,17 @@ public class FilmController {
         filmService.like(id, userId);
     }
 
+    @PutMapping("/{id}/like/{userId}/{score}")
+    public void addMark(
+            @Positive
+            @PathVariable Long id,
+            @Positive
+            @PathVariable Long userId,
+            @Positive
+            @PathVariable float score) {
+        filmService.addMark(id, userId, score);
+    }
+
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
         filmService.removeLike(id, userId);

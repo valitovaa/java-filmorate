@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS film_genres (
 CREATE TABLE IF NOT EXISTS film_likes (
     film_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
+    score FLOAT4 NOT NULL DEFAULT 0 CHECK (score BETWEEN 0 AND 10),
     PRIMARY KEY (film_id, user_id),
     FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

@@ -14,6 +14,8 @@ public class LikeRepository {
 
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
 
+    private static final String ADD_MARK_QUERY = "MERGE INTO film_likes(film_id, user_id, score) VALUES (?, ?, ?)";
+
     private final JdbcTemplate jdbc;
 
     public LikeRepository(JdbcTemplate jdbc) {
@@ -30,16 +32,17 @@ public class LikeRepository {
 
     //Найти пользователя с максимальным количеством пересечения по лайкам.
     private static final String FIND_MOST_SIMILAR_USER_QUERY = """
-        SELECT fl.user_id
-        FROM film_likes fl
-        JOIN film_likes target
-            ON fl.film_id = target.film_id
-        WHERE target.user_id = ?
-          AND fl.user_id <> ?
-        GROUP BY fl.user_id
-        ORDER BY COUNT(*) DESC
-        LIMIT 1
-        """;
+            SELECT fl.user_id
+            FROM film_likes fl
+            JOIN film_likes target
+                ON fl.film_id = target.film_id
+                AND fl.score = target.score
+            WHERE target.user_id = ?
+              AND fl.user_id <> ?
+            GROUP BY fl.user_id
+            ORDER BY COUNT(*) DESC
+            LIMIT 1
+            """;
 
     public Optional<Long> findMostSimilarUserId(long userId) {
         try {
@@ -58,16 +61,20 @@ public class LikeRepository {
 
     //Рекомендовать фильмы, которым поставил лайк пользователь с похожими вкусами, а тот, для кого составляется рекомендация, ещё не поставил.
     private static final String FIND_RECOMMENDED_FILM_IDS_QUERY = """
-        SELECT fl_other.film_id
-        FROM film_likes fl_other
-        WHERE fl_other.user_id = ?
-          AND NOT EXISTS (
-              SELECT 1
-              FROM film_likes fl_current
-              WHERE fl_current.user_id = ?
-                AND fl_current.film_id = fl_other.film_id
-          )
-        """;
+                SELECT f.id
+                FROM films f
+                JOIN film_likes fl2 ON f.id = fl2.film_id AND fl2.user_id = ?
+                LEFT JOIN film_likes fl1 ON f.id = fl1.film_id AND fl1.user_id = ?
+                WHERE fl1.film_id IS NULL
+                     AND EXISTS (
+                         SELECT 1
+                         FROM film_likes fl_avg
+                         WHERE fl_avg.film_id = f.id
+                         GROUP BY fl_avg.film_id
+                         HAVING AVG(fl_avg.score) >= 6
+                             OR AVG(fl_avg.score) >= 0
+                     )
+            """;
 
     public List<Long> findRecommendedFilmIds(long userId, long similarUserId) {
         return jdbc.queryForList(
@@ -78,4 +85,7 @@ public class LikeRepository {
         );
     }
 
+    public void addMark(Long filmId, Long userId, float score) {
+        jdbc.update(ADD_MARK_QUERY, filmId, userId, score);
+    }
 }

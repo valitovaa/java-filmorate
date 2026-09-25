@@ -30,4 +30,6 @@ public interface FilmStorage {
     List<Film> searchFilms(String query, boolean byTitle, boolean byDirector);
 
     void deleteFilm(Long filmId);
+
+    void addMark(Long id, Long userId, float score);
 }
