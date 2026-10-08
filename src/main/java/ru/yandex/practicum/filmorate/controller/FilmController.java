@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,8 +49,9 @@ public class FilmController {
             @PathVariable Long id,
             @Positive
             @PathVariable Long userId,
-            @Positive
-            @PathVariable float score) {
+            @Min(value = 1)
+            @Max(value = 10)
+            @PathVariable int score) {
         filmService.addMark(id, userId, score);
     }
 

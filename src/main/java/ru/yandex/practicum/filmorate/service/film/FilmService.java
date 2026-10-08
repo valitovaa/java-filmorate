@@ -133,7 +133,7 @@ public class FilmService {
         return filmStorage.searchFilms(query.trim(), byTitle, byDirector);
     }
 
-    public void addMark(Long filmId, Long userId, float score) {
+    public void addMark(Long filmId, Long userId, int score) {
         findFilmOrThrow(filmId);
         findUserOrThrow(userId);
 

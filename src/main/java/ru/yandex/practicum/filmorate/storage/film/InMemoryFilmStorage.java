@@ -105,7 +105,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void addMark(Long id, Long userId, float score) {
+    public void addMark(Long id, Long userId, int score) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }

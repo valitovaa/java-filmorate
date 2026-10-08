@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public class LikeRepository {
 
-    private static final String ADD_LIKE_QUERY = "MERGE INTO film_likes(film_id, user_id) VALUES (?, ?)";
+    private static final String ADD_LIKE_QUERY = "MERGE INTO film_likes(film_id, user_id, score) VALUES (?, ?, 10)";
 
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
 
@@ -36,7 +36,8 @@ public class LikeRepository {
             FROM film_likes fl
             JOIN film_likes target
                 ON fl.film_id = target.film_id
-                AND fl.score = target.score
+                AND (CASE WHEN fl.score<= 5 THEN 0 ELSE 1 END)
+                     = (CASE WHEN target.score <= 5 THEN 0 ELSE 1 END)
             WHERE target.user_id = ?
               AND fl.user_id <> ?
             GROUP BY fl.user_id
@@ -72,7 +73,6 @@ public class LikeRepository {
                          WHERE fl_avg.film_id = f.id
                          GROUP BY fl_avg.film_id
                          HAVING AVG(fl_avg.score) >= 6
-                             OR AVG(fl_avg.score) >= 0
                      )
             """;
 
@@ -85,7 +85,7 @@ public class LikeRepository {
         );
     }
 
-    public void addMark(Long filmId, Long userId, float score) {
+    public void addMark(Long filmId, Long userId, int score) {
         jdbc.update(ADD_MARK_QUERY, filmId, userId, score);
     }
 }

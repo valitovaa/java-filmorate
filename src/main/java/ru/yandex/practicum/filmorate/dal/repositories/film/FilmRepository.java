@@ -34,7 +34,7 @@ public class FilmRepository extends BaseRepository<Film> {
             "FROM films f " +
             "JOIN film_directors fd ON f.id = fd.film_id " +
             "WHERE fd.director_id = ? " +
-            "ORDER BY avg_score DESC, f.release_date DESC";
+            "ORDER BY AVG(fl.score) DESC, f.release_date DESC";
 
     private static final String FIND_FILMS_BY_DIRECTOR_SORT_BY_LIKES =
             "SELECT f.*, " +
@@ -76,7 +76,7 @@ public class FilmRepository extends BaseRepository<Film> {
             WHERE (? IS NULL OR fg.genre_id = ?)
               AND (? IS NULL OR f.release_date BETWEEN ? AND ?)
             GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa
-            ORDER BY avg_score DESC, likes DESC
+            ORDER BY AVG(fl.score) DESC, likes DESC, f.id ASC
             LIMIT ?
             """;
 
@@ -95,7 +95,7 @@ public class FilmRepository extends BaseRepository<Film> {
                       AND LOWER(d.name) LIKE LOWER(CONCAT('%', ?, '%'))
                ))
             GROUP BY f.id
-            ORDER BY avg_score DESC, likes_count DESC
+            ORDER BY AVG(fl.score) DESC, likes_count DESC
             """;
 
     private static final String FIND_GENRES_BY_FILM_IDS_QUERY = """
@@ -343,7 +343,7 @@ public class FilmRepository extends BaseRepository<Film> {
             long filmId = rs.getLong("film_id");
             Film film = filmsById.get(filmId);
             if (film != null) {
-                film.setRate(rs.getFloat("avg_score"));
+                film.setRate(rs.getInt("avg_score"));
             }
             return null;
         }, args);

@@ -31,5 +31,5 @@ public interface FilmStorage {
 
     void deleteFilm(Long filmId);
 
-    void addMark(Long id, Long userId, float score);
+    void addMark(Long id, Long userId, int score);
 }

@@ -37,5 +37,5 @@ public class Film {
 
     List<Director> directors = new ArrayList<>();
 
-    private float rate;
+    private int rate;
 }

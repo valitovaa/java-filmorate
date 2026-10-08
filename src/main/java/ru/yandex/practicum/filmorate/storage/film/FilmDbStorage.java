@@ -72,7 +72,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void addMark(Long filmId, Long userId, float score) {
+    public void addMark(Long filmId, Long userId, int score) {
         likeRepository.addMark(filmId, userId, score);
     }
 }
