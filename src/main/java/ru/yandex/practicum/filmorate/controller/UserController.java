@@ -69,6 +69,7 @@ public class UserController {
     //рекомендации фильмов
     @GetMapping("/{id}/recommendations")
     public List<Film> getRecommendedFilms(@PathVariable Long id) {
+        log.warn("In controllers. Get id ={}", id);
         return recommendationService.getRecommendedFilms(id);
     }
 

@@ -34,7 +34,7 @@ public class FilmRepository extends BaseRepository<Film> {
             "FROM films f " +
             "JOIN film_directors fd ON f.id = fd.film_id " +
             "WHERE fd.director_id = ? " +
-            "ORDER BY AVG(fl.score) DESC, f.release_date DESC";
+            "ORDER BY avg_score DESC, f.release_date DESC";
 
     private static final String FIND_FILMS_BY_DIRECTOR_SORT_BY_LIKES =
             "SELECT f.*, " +

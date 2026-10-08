@@ -51,8 +51,13 @@ public class FilmController {
             @PathVariable Long userId,
             @Min(value = 1)
             @Max(value = 10)
-            @PathVariable int score) {
-        filmService.addMark(id, userId, score);
+            @PathVariable float score) {
+        float fractionalPartScore = score - (int) score;
+        int intScore = Math.round(score);
+        if (fractionalPartScore > 0 ) {
+            intScore = Math.round(score) + 1;
+        }
+        filmService.addMark(id, userId, intScore);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
