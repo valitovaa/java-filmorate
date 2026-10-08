@@ -34,7 +34,7 @@ public class RecommendationService {
                                 "Пользователь с id = " + userId + " не найден"
                         )
                 );
-        log.warn("In service user is found. UserId={}",userId);
+        log.warn("In service user is found. UserId={}", userId);
         List<Film> films = recommendationStorage.getRecommendedFilms(userId);
         log.warn("In service user is found. getRecommendedFilms on recommendationStorage complete. Films={}", films);
         return recommendationStorage.getRecommendedFilms(userId);

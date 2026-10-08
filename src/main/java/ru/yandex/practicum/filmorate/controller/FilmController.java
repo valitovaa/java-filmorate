@@ -54,7 +54,7 @@ public class FilmController {
             @PathVariable float score) {
         float fractionalPartScore = score - (int) score;
         int intScore = Math.round(score);
-        if (fractionalPartScore > 0 ) {
+        if (fractionalPartScore > 0) {
             intScore = Math.round(score) + 1;
         }
         filmService.addMark(id, userId, intScore);
