@@ -19,7 +19,6 @@ public class RecommendationDbStorage implements RecommendationStorage {
     @Override
     public List<Film> getRecommendedFilms(Long userId) {
         Optional<Long> similarUserId = likeRepository.findMostSimilarUserId(userId);
-
         if (similarUserId.isEmpty()) {
             return List.of();
         }

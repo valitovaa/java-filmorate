@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class    DirectorRepository extends BaseRepository<Director> {
+public class DirectorRepository extends BaseRepository<Director> {
     private static final String FIND_ALL_QUERY = "SELECT * FROM directors";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM directors WHERE id = ?";
     private static final String INSERT_QUERY = "INSERT INTO directors(name) VALUES (?)";

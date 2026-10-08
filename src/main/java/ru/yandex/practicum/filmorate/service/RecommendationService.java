@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class RecommendationService {
 
@@ -32,7 +34,9 @@ public class RecommendationService {
                                 "Пользователь с id = " + userId + " не найден"
                         )
                 );
-
+        log.warn("In service user is found. UserId={}", userId);
+        List<Film> films = recommendationStorage.getRecommendedFilms(userId);
+        log.warn("In service user is found. getRecommendedFilms on recommendationStorage complete. Films={}", films);
         return recommendationStorage.getRecommendedFilms(userId);
     }
 }

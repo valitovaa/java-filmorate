@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +41,23 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable Long id, @PathVariable Long userId) {
         filmService.like(id, userId);
+    }
+
+    @PutMapping("/{id}/like/{userId}/{score}")
+    public void addMark(
+            @Positive
+            @PathVariable Long id,
+            @Positive
+            @PathVariable Long userId,
+            @Min(value = 1)
+            @Max(value = 10)
+            @PathVariable float score) {
+        float fractionalPartScore = score - (int) score;
+        int intScore = Math.round(score);
+        if (fractionalPartScore > 0) {
+            intScore = Math.round(score) + 1;
+        }
+        filmService.addMark(id, userId, intScore);
     }
 
     @DeleteMapping("/{id}/like/{userId}")

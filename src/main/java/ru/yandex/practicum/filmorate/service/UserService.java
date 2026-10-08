@@ -48,9 +48,9 @@ public class UserService {
         return userStorage.update(user);
     }
 
-        public User findUserById(Long id) {
-            return userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        }
+    public User findUserById(Long id) {
+        return userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+    }
 
     public void addFriend(Long userId, Long friendId) {
         findUserOrThrow(userId);
@@ -65,7 +65,7 @@ public class UserService {
         findUserOrThrow(friendId);
 
         userStorage.removeFriend(userId, friendId);
-        eventStorage.removeFriendEvent(userId,friendId);
+        eventStorage.removeFriendEvent(userId, friendId);
     }
 
     public List<User> getFriends(Long userId) {
@@ -86,16 +86,16 @@ public class UserService {
         userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
     }
 
-        public void deleteUser(Long id) {
-            findUserOrThrow(id);
-            userStorage.deleteUser(id);
-        }
+    public void deleteUser(Long id) {
+        findUserOrThrow(id);
+        userStorage.deleteUser(id);
+    }
 
-        private void validateLogin(User user) {
-            if (!StringUtils.hasText(user.getLogin())) {
-                throw new ConditionsNotMetException("Логин не может быть пустым");
-            }
+    private void validateLogin(User user) {
+        if (!StringUtils.hasText(user.getLogin())) {
+            throw new ConditionsNotMetException("Логин не может быть пустым");
         }
+    }
 
     private void validateBirthday(User user) {
         if (user.getBirthday().isAfter(LocalDate.now())) {
